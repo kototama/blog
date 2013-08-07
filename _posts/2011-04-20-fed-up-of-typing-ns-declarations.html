@@ -1,0 +1,19 @@
+---
+layout: post
+title: "Fed up with typing ns declarations?"
+date: 2011-04-20T07:28:00-07:00
+comments: false
+categories:
+ - Clojure
+---
+
+<div class='post'>
+While watching the demonstration video of the <a href="http://www.playframework.org/">Play framework</a>, I saw that the developer had some nice templates for its TextMate editor. A few Google searches tells us that it is also possible to have the same functionality in Emacs with the <a href="http://code.google.com/p/yasnippet/">YASnippet</a> template system.<br /><br />Typing all these long namespaces declarations in Clojure is quickly boring when you create a lot of files, so why not create a template for that?<br /><br />After having installed YASnippet, create a <i>clojure-mode</i> directory inside the <b>yasnippet/snippets/text-mode</b> directory and create a file named <i>ns</i> with <a href="https://gist.github.com/931439">this content</a>:<br /><br /><pre>(ns `(let* ((nsname '())<br />        (dirs (split-string (buffer-file-name) "/"))<br />        (aftersrc nil))<br />     (dolist (dir dirs)<br />        (if aftersrc<br />            (progn<br />                (setq nsname (cons dir nsname))<br />                (setq nsname (cons "." nsname)))<br />             (when (or (string= dir "src") (string= dir "test"))<br />                (setq aftersrc t))))<br />     (when nsname<br />       (replace-regexp-in-string "_" "-" (substring (apply 'concat (reverse nsname))  0 -5))))`<br />     (:use $1)<br />     (:require ))<br /></pre><br />Now, when inside a Clojure buffer type "ns" and TAB to complete ; if you are for instance in the <b>src/mylib/utils/swing_stuff.clj</b> buffer, this will be expanded into the following text:<br /><pre>(ns <b>mylib.utils.swing-stuff</b><br />  (:use )<br />  (:require ))<br /></pre><br />Isn't that handy?<br /><br />Note: this is my first hack with Emacs Lisp, and now that it is working I'm publishing it without any further improvements, so be indulgent regarding the implementation!</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Max Penet</div>
+<div class='content'>
+Loving it, thanks! <br /><br />I didn&#39;t know it was possible to write elisp in snippets directly.</div>
+</div>
+</div>
