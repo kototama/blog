@@ -2,7 +2,8 @@
 #+DATE: 2013-08-09
 #+SETUPFILE: ~/Documents/Projects/Blog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: emacs
+#+JEKYLL_COMMENTS: true
+#+JEKYLL_CATEGORIES: Emacs
 #+JEKYLL_PUBLISHED: true
 
 This blog is moving away from Google Blogger. Update your RSS reader.
