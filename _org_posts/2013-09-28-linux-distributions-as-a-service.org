@@ -5,7 +5,7 @@
 #+JEKYLL_CATEGORIES: Linux
 #+JEKYLL_PUBLISHED: true
 
-One of my colleague installed Ubuntu on its Mac computers and was
+One of my colleague installed Ubuntu on his Mac computers and was
 surprised by the varieties of Ubuntu distributions offered. There are
 different distributions and differents architectures and he was
 wondering how they managed this complexity.
