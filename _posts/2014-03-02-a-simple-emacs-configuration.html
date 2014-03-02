@@ -1,0 +1,60 @@
+---
+title: "A simple Emacs configuration"
+date: 2014-03-02
+layout: post
+categories: Emacs
+published: true
+comments: 
+---
+<p>
+In this post I introduce a simple, effective and maintainable
+structure for the <code>.emacs.d</code> configuration directory.
+</p>
+
+<p>
+I have a mix feeling about pre-defined Emacs configurations such are
+<a href="https://github.com/overtone/emacs-live">Emacs Live</a> or <a href="https://github.com/bbatsov/prelude">Prelude</a>. In one hand they build a nice showcase,
+demonstrating powerful modes and features, in the other hand they seem
+complex in their structure and use their own abstractions ("modules"
+for Prelude, "pack" for Emacs Live). That is why I still prefer to
+write my own configuration which I can easily fix. Of course I still
+dig in people configuration to get ideas. Basically I have reached the
+same conclusion as <a href="https://github.com/technomancy">technomancy</a> which stopped its <a href="https://github.com/technomancy/emacs-starter-kit">Emacs Starter Kit</a>.
+</p>
+
+<p>
+In the last weeks I have redone my configuration removing <a href="https://github.com/dimitri/el-get">El-Get</a>,
+which I found too slow, in favor of <a href="http://melpa.milkbox.net">MELPA</a>. My initial switch to El-Get
+was because <a href="http://marmalade-repo.org/">Marmalade</a> was often down ; I didn't experience the same
+issues with MELPA.
+</p>
+
+<p>
+The configuration is based on <a href="https://github.com/zenspider/package">package+</a> (the name is hard to search on
+the web!) and the great <a href="https://github.com/jwiegley/use-package">use-package</a> package. A <code>makefile</code> installs the
+few git submodules needed, download user-defined packages and
+byte-compiles the packages. User and machines specific configurations
+can be defined in the <code>$HOME/.eroles/login@hostname/</code> directory. The
+<code>auto-async-byte-compile</code> mode ensures that Emacs Lisp files are
+always byte-compiled.
+</p>
+
+<p>
+All packages configuration are done in a lazy way, thanks to
+use-package, and organized with <code>orgstruct-mode</code> in an org-like
+structure.
+</p>
+
+<p>
+I stole a few ideas <a href="https://github.com/magnars">here</a>, <a href="https://github.com/technomancy">there</a> and <a href="https://github.com/jwiegley">there</a> for the configuration.
+</p>
+
+<p>
+The configuration is simple yet effective, I hope it can inspire
+beginners or even advanced users for how to structure an <code>.emacs.d</code>
+directory effectively.
+</p>
+
+<p>
+See my <a href="https://github.com/kototama/.emacs.d">.emacs.d configuration on GitHub</a> and happy hacking!
+</p>
