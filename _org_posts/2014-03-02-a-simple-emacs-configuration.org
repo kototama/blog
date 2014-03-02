@@ -30,7 +30,7 @@ can be defined in the ~$HOME/.eroles/login@hostname/~ directory. The
 ~auto-async-byte-compile~ mode ensures that Emacs Lisp files are
 always byte-compiled.
 
-All packages configuration are done in a lazy way, thanks to
+All packages configurations are done in a lazy way, thanks to
 use-package, and organized with ~orgstruct-mode~ in an org-like
 structure.
 
