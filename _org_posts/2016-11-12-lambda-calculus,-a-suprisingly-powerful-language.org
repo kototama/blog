@@ -109,7 +109,7 @@ Take a paper and a pen and evaluate ~fst (pair v w)~. It evaluates to
 ~v~, as expected.
 
 Lists can also be encoded. The list ~[x, y, z]~ can be encoded as the
-abstraction ~λc. λn. λb. c x (c y (c z n))~. That is a /fold/ (also
+abstraction ~λc. λn. c x (c y (c z n))~. That is a /fold/ (also
 known as a /reduce/) is used to encode the list.
 
 The usual functions to manipulate lists can be defined:
