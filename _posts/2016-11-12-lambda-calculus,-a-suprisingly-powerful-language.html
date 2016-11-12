@@ -1,0 +1,246 @@
+---
+title: "Lambda calculus, a suprisingly powerful language"
+date: 2016-11-12
+layout: post
+categories: 
+- Lambda-Calculus 
+- Theory
+tags: 
+published: true
+comments: true
+---
+<p>
+I'm reading the book <a href="https://www.cis.upenn.edu/~bcpierce/tapl">Types and Programming Languages</a> from Benjamin C.
+Pierce from time to time at the moment. The chapter explaining the
+<b>untyped lambda calculus</b> gave me more than one occasion to pause and
+think. The lambda calculus, invented in the 30s, is a formal system
+for expressing computation with functions and can also been seen as a
+programming language. A very simple one, yet a surprisingly very
+powerful one. A language where all computations are done with
+functions, thus the first functional programming language in the
+history of mankind. It plays an important role in the field of
+research but also as a theoretical foundation for implementing
+functional languages such as Haskell, OCaml, Scheme, Clojure etc.
+</p>
+
+<p>
+The lambda calculus is composed of three elements (or in programming
+language theory jargon, of three <i>terms</i>):
+</p>
+
+<ul class="org-ul">
+<li>variables, of the form <code>x</code></li>
+<li>abstractions, of the form <code>λx.t</code></li>
+<li>applications, of the form <code>t s</code></li>
+</ul>
+
+<p>
+An abstraction can almost be seen like a function in "classic"
+programming languages. An application "applies" its arguments to an
+abstraction. There is nothing more. There are no booleans, numbers,
+strings, conditional statements etc. Functions accept only one
+argument. Yet, everything can be computed with the lambda calculus.
+</p>
+
+<p>
+A variable <code>x</code> is <i>bound</i> if it occurs in the abstraction of the body
+<code>t</code> of an abstraction <code>λx.t</code>. It is is <i>free</i> if it appears if it is
+not bound by an enclosing abstraction on <code>x</code>. For example in <code>(λx.x)
+x</code> the first <code>x</code> is bound, the second one is free. A term with no free
+variables is called a <i>combinator</i>. <sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>
+</p>
+
+<p>
+The simplest combinator is the identity function. It returns its
+argument unchanged:
+</p>
+
+<p>
+<code>id = λx. x</code>
+</p>
+
+<p>
+There are different strategies when choosing on how arguments are
+evaluated before applying them to functions. That is, there are
+different strategies to <i>reduce</i> the terms. The most common one is
+<i>call-by-value</i>. Under this strategy a function can be applied only
+when its right-hand side has been reduce to a <i>value</i>. A value is a
+term that cannot be further reduced.
+</p>
+
+<p>
+Thus <code>(λx.x x) (λx.x) y</code> reduces to <code>(λx.x) (λx.x) y</code> in the first
+evaluation step then to <code>(λx.x) y</code> then to <code>y</code>. Functions with
+multiple arguments can be simulated by having a function returning
+another function: <code>λx.λy.x y</code>, for example. This is familiar to functional
+programmers as <i>currying</i>.
+</p>
+
+<p>
+What really impress me is that every computation are possible with
+such a simple language. I will give a few examples from the book, some
+are answers from exercises, so I you indent to read it I would suggest
+to stop your reading here.
+</p>
+
+<p>
+Boolean values can be <i>encoded</i> as functions like this:
+</p>
+
+<p>
+<code>tru = λt. λf. t</code>
+</p>
+
+<p>
+<code>fls = λt. λf. f</code>
+</p>
+
+<p>
+<i>Tru</i> is a function that discards the value of its second argument
+and returns the value of its first argument. <i>Fls</i> is a function that
+discards the value of its first arguments and returns the value of
+its second argument. They are used as a representation of the True
+and False booleans.
+</p>
+
+<p>
+The <i>test</i> combinator can be defined like this:
+</p>
+
+<p>
+<code>test = λl. λm. λn. l m n</code>
+</p>
+
+<p>
+If the first argument of <i>test</i> is <code>tru</code> the expression will reduce to
+<code>m</code>, if it is <code>fls</code> it will reduce to <code>n</code>. For example <code>test tru x
+y</code> evaluates to <code>tru x y</code> which evaluates to <code>x</code>. Awesome, it is
+almost like a <i>if</i> statement!
+</p>
+
+<p>
+Numbers can be encoded too. The <i>Church numerals</i> <sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup> are defined like
+this:
+</p>
+
+<p>
+<code>c0 = λs. λz. z</code>
+</p>
+
+<p>
+<code>c1 = λs. λz. s z</code>
+</p>
+
+<p>
+<code>c2 = λs. λz. s (s z)</code>
+</p>
+
+<p>
+and so on and so on. Functions such as <code>scc</code> (successor) and
+<code>plus</code> can also be defined.
+</p>
+
+<p>
+<code>scc = λn. λs. λz. s (n s z)</code>
+</p>
+
+<p>
+<code>plus = λm. λn. λs. λz. m s (n s z)</code>
+</p>
+
+<p>
+Data structures such as pairs can also be encoded:
+</p>
+
+<p>
+<code>pair = λf. λs. λb. b f s</code>
+</p>
+
+<p>
+<code>fst = λp. p tru</code>
+</p>
+
+<p>
+<code>snd = λp. p fls</code>
+</p>
+
+<p>
+Take a paper and a pen and evaluate <code>fst (pair v w)</code>. It evaluates to
+<code>v</code>, as expected.
+</p>
+
+<p>
+Lists can also be encoded. The list <code>[x, y, z]</code> can be encoded as the
+abstraction <code>λc. λn. λb. c x (c y (c z n))</code>. That is a <i>fold</i> (also
+known as a <i>reduce</i>) is used to encode the list.
+</p>
+
+<p>
+The usual functions to manipulate lists can be defined:
+</p>
+
+<p>
+<code>nil = λc. λn. n</code>
+</p>
+
+<p>
+<code>isnil = λl. l (λh. λt. fls) tru</code>
+</p>
+
+<p>
+<code>cons = λh. λt. λc. λn. c h (t c n)</code>
+</p>
+
+<p>
+<code>head = λl. l (λh.λt.h) fls.</code>
+</p>
+
+<p>
+<code>tail = λl. fst (l (λx. λp. pair (snd p) (cons x (snd p))) (pair nil nil))</code>
+</p>
+
+<p>
+It is also possible to encode lists with pairs.
+</p>
+
+<p>
+A mechanism similar to recursion can be defined by having functions
+reducing their arguments to a form similar to the function itself. For
+example this combinator:
+</p>
+
+<p>
+<code>(λx. x x) (λx. x x)</code> reduces to himself.
+</p>
+
+<p>
+More advanced tricks allow to define the equivalent of recursive
+functions such as the canonical definition of factorial.
+</p>
+
+<p>
+Lambda calculus is a very simple but amazingly powerful language. It
+is also striking to make the comparison with some programming
+languages such as Java that could not even pass simply a function
+around before the most recent versions.
+</p>
+
+<p>
+Congratulation for reading until there! Given all the shortcuts I took
+to explain, if you understood everything, well done.
+</p>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+I'm paraphrasing the book here and also a lot below!
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://en.wikipedia.org/wiki/Alonzo_Church">Alonzo Church</a> invended the lambda calculus.
+</p></div></div>
+
+
+</div>
+</div>
