@@ -1,0 +1,64 @@
+#+TITLE: Laser cutting with love
+#+DATE: 2016-12-04
+#+SETUPFILE: ~/projects/blog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Laser-Cutting DIY
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+In this post I will show you how I conceived a beautifull laser-cutted wooden cube.
+
+#+CAPTION: Two of the cube faces
+#+NAME: cube_face.jpg
+#+attr_html: :width 400px
+[[https://github.com/kototama/blog/raw/master/images/cube_dice.jpg]]
+
+The first step I took was to conceive a 3D model of the cube to ensure
+that each piece fit well when assembled. I wanted to used open-source
+tools so I used the [[http://www.freecadweb.org/][FreeCAD]] software, which was unfortunately buggy.
+Undo/redo was not working properly (tip for the developpers of
+FreeCAD: use immutable data-structures!) so I used Git for
+snapshotting the model in case anything went wrong. Each face of the
+cube was then projected on a plan inside FreeCAD. You can find the
+final work [[https://github.com/kototama/laser-cutting-cube][here]]. There are already existing tools and websites to
+conceived such wooden cubes or boxes with laser-cutters but I wanted
+to do everything myself.
+
+The second step was to edit the files in Inkscape to add the letters
+and specify the cutting, engraving and marking areas with different
+colors.
+
+The third step was to import the file in [[https://hci.rwth-aachen.de/visicut][VisiCut]] and map the color to
+the laser operations and adjust the settings. Different laser cutters
+models have different software requirements.
+
+The fourth step was to calibrate the laser. This is not as hard as it
+sounds. Basically you just need to adjust the distance between the
+laser head and the wood. It is easy to do after somebody explain it to
+you.
+
+The fifth step was to do a few experiments on the laser cutter to get
+the setting right. For example the first trial did not cut through the
+wood, then the intensity of the marking was not good enough etc.
+Playing with the speed and the power of the laser allows to get
+different results.
+
+How does a laser-cutter looks like? Look on [[https://www.youtube.com/watch?v=e0AzZlFRRGU][YouTube]].
+
+This is the cube once cutted and assembled (without glue):
+
+#+CAPTION: Final result
+#+NAME: cube_full.jpg
+#+attr_html: :width 500px
+[[https://github.com/kototama/blog/raw/master/images/cube_full.jpg]]
+
+It makes a really nice present:
+
+#+CAPTION: A gift
+#+NAME: cube_full.jpg
+#+attr_html: :width 500px
+[[https://github.com/kototama/blog/raw/master/images/cube_wrapped.jpg]]
+
+
+You can get access to laser cutters at your local FabLab / Maker-Space / Hacker-Space.
+

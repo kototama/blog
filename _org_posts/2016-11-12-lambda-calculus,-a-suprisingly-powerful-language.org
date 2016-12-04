@@ -120,7 +120,7 @@ The usual functions to manipulate lists can be defined:
 
 ~cons = λh. λt. λc. λn. c h (t c n)~
 
-~head = λl. l (λh.λt.h) fls.~
+~head = λl. l (λh.λt.h) fls~
 
 ~tail = λl. fst (l (λx. λp. pair (snd p) (cons x (snd p))) (pair nil nil))~
 
