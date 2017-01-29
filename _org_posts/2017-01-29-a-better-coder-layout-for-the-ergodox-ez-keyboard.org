@@ -40,7 +40,7 @@ bigger than 5KLOC and coming from different language families:
 - one JavaScript project (curly brackets)
 - one Haskell project (ML family, Haskell, PureScript)
 
-I aggregated various statistics and used them for *Manually* designing
+I aggregated various statistics and used them for *manually* designing
 the coder layout. I did not analyze my shell commands, however the
 place of the slash symbol in my design allows to easily type
 directory paths. I designed the layout according to an [[https://colemakmods.github.io/mod-dh/compare.html][effort matrix]]
