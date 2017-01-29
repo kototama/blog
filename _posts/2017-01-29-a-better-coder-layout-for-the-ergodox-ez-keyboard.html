@@ -1,0 +1,94 @@
+---
+title: "A better coder layout for the ErgoDox EZ keyboard"
+date: 2017-01-29
+layout: post
+categories: 
+- keyboard 
+- layout 
+- ErgoDox
+tags: 
+published: true
+comments: true
+---
+
+<div id="orgparagraph1" class="figure">
+<p><img src="https://github.com/kototama/blog/raw/master/images/ergodox_coder_layout.png" alt="ergodox_coder_layout.png" width="800px" />
+</p>
+<p><span class="figure-number">Figure 1:</span> <a href="http://configure.ergodox-ez.com/keyboard_layouts/qdvyyr/edit">http://configure.ergodox-ez.com/keyboard_layouts/qdvyyr/edit</a></p>
+</div>
+
+
+
+<p>
+I'm a happy owner of the <a href="https://ergodox-ez.com/">ErgoDox EZ</a>, an awesome ergonomic
+mechanical keyboard. The Ergodox can be configured with multiple
+<b>layers</b>. The first layer is generally configured to be the one with
+the letters and symbols used for the standard layout (like QWERTY, AZERTY,
+or Colemak). Often the second layer is the so-called "coder" layer with
+symbols for programming such as parenthesis, brackets, semi-brackets
+etc. The third one can be configured to control the mouse and the
+multimedia functions of the operating system with the keyboard.
+Everything is configurable and additional layouts can be added with an
+<a href="http://configure.ergodox-ez.com/">online configurator</a> or by compiling a C file for <a href="https://github.com/qmk/qmk_firmware">the firmware</a>. Each
+layout is accessible by pressing a key; something similar to pressing
+alt or shift on another keyboard, where pressing these keys
+allow to access a new set of symbols.
+</p>
+
+<p>
+Before ordering the ErgoDox I was preparing a lot to find an optimized
+layout suited for my needs. It happened that <a href="https://colemakmods.github.io/mod-dh/">Colemak Mod-DH</a> was perfect
+for me. Similarly, I wanted an optimized coder layout for my
+programming needs. I used some <a href="https://github.com/kototama/keyboard-frequencies">simple Unix tools</a> to calculate the
+frequencies of special symbols appearing in various source codes. I
+chose projects which either I or my (ex-) colleagues worked on, having a size
+bigger than 5KLOC and coming from different language families:
+</p>
+
+<ul class="org-ul">
+<li>one Clojure project (Lisp family)</li>
+<li>one Python project (significant structural indentation)</li>
+<li>one JavaScript project (curly brackets)</li>
+<li>one Haskell project (ML family, Haskell, PureScript)</li>
+</ul>
+
+<p>
+I aggregated various statistics and used them for <b>Manually</b> designing
+the coder layout. I did not analyze my shell commands, however the
+place of the slash symbol in my design allows to easily type
+directory paths. I designed the layout according to an <a href="https://colemakmods.github.io/mod-dh/compare.html">effort matrix</a>
+but I did not go as far as to test my design with a software. It just
+felt (very) good and I needed a fast solution to be able to use
+the ErgoDox as quickly as possible.
+</p>
+
+<p>
+It took little time to learn the layout, partly because I designed it
+but also because there was no conflicting mental model in my head, unlike
+when learning a new optimized layout where the brain needs to
+"unlearn" the previous layout from the new one.
+</p>
+
+<p>
+Symbols are balanced, as much as possible, between left and
+right. "Weaker" symbols (such as "?" or ') are on the left and
+"stronger" symbols ("!" or ") are on the right. I placed all
+punctuation symbols on my first layer (, . ; : ) so they do not appear
+on the coder layout.
+</p>
+
+<p>
+In the end I think the default coder layout proposed by the ErgoDox EZ
+is a very bad one considering the ergonomics. It should be seen as a
+showcase of the possibilities offered by the ErgoDox and an invitation
+to taylor a layout for users' needs (which is the idea of this
+product).
+</p>
+
+<p>
+My exact final layout can be <a href="https://github.com/kototama/qmk_firmware">found on my GitHub</a> and was not submitted
+back to the original project yet, as I still want to do a few
+improvements. I recreated a similar design to mine with the
+configurator <a href="http://configure.ergodox-ez.com/keyboard_layouts/qdvyyr/edit">available here</a>. If you like it, I would appreciate a
+short comment.
+</p>
