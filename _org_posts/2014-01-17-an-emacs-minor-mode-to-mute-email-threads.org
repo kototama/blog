@@ -6,6 +6,9 @@
 #+JEKYLL_CATEGORIES: Emacs Notmuch Email
 #+JEKYLL_PUBLISHED: true
 
+#+HUGO_TAGS: emacs notmuch email
+#+HUGO_BASE_DIR: ../../
+
 Emacs is best know to be a powerful text editor. It is also a powerful note
 editing system with [[http://orgmode.org/][org-mode]]. Since emails are mostly composed of text it also
 makes sense to use Emacs for reading and writing them ; automating

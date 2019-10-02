@@ -6,6 +6,10 @@
 #+JEKYLL_CATEGORIES: Haskell
 #+JEKYLL_PUBLISHED: true
 
+#+HUGO_TAGS: haskell
+#+HUGO_BASE_DIR: ../../
+
+
 After reading a few books on Haskell I had to face the reality:
 learning by doing a project was necessary! 
 

@@ -6,6 +6,9 @@
 #+JEKYLL_CATEGORIES: Emacs
 #+JEKYLL_PUBLISHED: true
 
+#+HUGO_TAGS: emacs
+#+HUGO_BASE_DIR: ../../
+
 This blog is moving away from Google Blogger. Update your RSS reader.
 
 Moving to a self-hosted platform will allow me to:

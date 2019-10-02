@@ -6,6 +6,10 @@
 #+JEKYLL_TAGS: 
 #+JEKYLL_PUBLISHED: true
 
+#+HUGO_TAGS: ergodox keyboad
+#+HUGO_BASE_DIR: ../../
+
+
 #+CAPTION: http://configure.ergodox-ez.com/keyboard_layouts/qdvyyr/edit
 #+NAME: ergodox_coder_layout.jpg
 #+attr_html: :width 800px

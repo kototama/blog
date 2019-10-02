@@ -6,6 +6,10 @@
 #+JEKYLL_TAGS: 
 #+JEKYLL_PUBLISHED: true
 
+#+HUGO_TAGS: laser-cutting DIY
+#+HUGO_BASE_DIR: ../../
+
+
 In this post I will show you how I conceived a beautifull laser-cutted wooden cube.
 
 #+CAPTION: Two of the cube faces

@@ -5,6 +5,10 @@
 #+JEKYLL_CATEGORIES: Linux
 #+JEKYLL_PUBLISHED: true
 
+#+HUGO_TAGS: linux
+#+HUGO_BASE_DIR: ../../
+
+
 One of my colleague installed Ubuntu on his Mac computers and was
 surprised by the varieties of Ubuntu distributions offered. There are
 different distributions and differents architectures and he was

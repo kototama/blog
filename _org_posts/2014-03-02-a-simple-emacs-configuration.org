@@ -6,6 +6,9 @@
 #+JEKYLL_PUBLISHED: true
 #+JEKYLL_COMMENTS: true
 
+#+HUGO_TAGS: emacs
+#+HUGO_BASE_DIR: ../../
+
 In this post I introduce a simple, effective and maintainable
 structure for the ~.emacs.d~ configuration directory.
 

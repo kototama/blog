@@ -6,6 +6,10 @@
 #+JEKYLL_PUBLISHED: true
 #+JEKYLL_COMMENTS: true
 
+#+HUGO_TAGS: haskell
+#+HUGO_BASE_DIR: ../../
+
+
 In 2013 and 2014 I read four Haskell books. In this post I'm making
 mini-reviews for each of them, chronologically ordered.
 

@@ -6,6 +6,10 @@
 #+JEKYLL_TAGS:
 #+JEKYLL_PUBLISHED: true
 
+#+HUGO_TAGS: lambda-calculus cstheory
+#+HUGO_BASE_DIR: ../../
+
+
 I'm reading the book [[https://www.cis.upenn.edu/~bcpierce/tapl][Types and Programming Languages]] from Benjamin C.
 Pierce from time to time at the moment. The chapter explaining the
 *untyped lambda calculus* gave me more than one occasion to pause and
