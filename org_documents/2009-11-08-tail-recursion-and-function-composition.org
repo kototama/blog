@@ -1,0 +1,136 @@
+#+TITLE: Tail recursion and function composition
+#+DATE: 2009-11-08
+
+The chapter four of the [[http://www.paulgraham.com/acl.html][ANSI
+Common Lisp]] book has an interesting code to insert a node in a
+[[http://en.wikipedia.org/wiki/Binary_search_tree][binary search tree
+(BST)]]. The code, ported to Clojure, is:\\
+\\
+#+name: code
+#+begin_src clojure
+(defstruct node :elt :l :r)
+
+(defn bst-insert [bst x comp]
+  (if (nil? bst)
+    (struct node x)
+    (let [elt (:elt bst)]
+      (if (= x elt)
+        bst
+        (if (comp x elt)
+          (struct node
+                  elt
+                  (bst-insert (:l bst) x comp)
+                  (:r bst))
+          (struct node
+                  elt
+                  (:l bst)
+                  (bst-insert (:r bst) x comp)))))))
+#+end_src
+
+\\
+The function is non-destructive. Creating a BST can be done like this:\\
+\\
+#+name: code
+#+begin_src clojure
+(def nums (reduce (fn [acc x] (bst-insert acc x <)) nil [5 8 4 2 1 9 6 7 3]))
+#+end_src
+
+Obviously the function does not use a tail recursion. The value of the
+recursive call to bst-insert is used by the struct function. How could
+we transform it to have a tail recursion? We need to store on a stack
+the information gained while doing the recursion: the branches we have
+visited and the branches taken. We store the information while we go
+from the root to the leaf. We can then unstack and reconstruct the tree
+from the leave to the root. This is done in the bst-insert-tc
+function:\\
+#+name: code
+#+begin_src clojure
+(defn bst-insert-tc [bst x comp]
+  (loop [bst bst
+         acc '()]
+    (if (nil? bst)
+      (loop [tree (struct node x)
+             stack acc]
+        (let [[lr elt branch] (first stack)]
+          (if (empty? stack)
+            tree
+            (if (= lr :l)
+              (recur (struct node elt branch tree) (rest stack))
+              (recur (struct node elt tree branch) (rest stack))))))
+      (let [elt (:elt bst)]
+        (if (= x elt)
+          bst
+          (if (comp x elt)
+            (recur (:l bst) (cons [:r elt (:r bst)] acc))
+            (recur (:r bst) (cons [:l elt (:l bst)] acc))))))))
+#+end_src
+
+This approach works but is a bit naive and the second loop can be
+simplified by using reduce:\\
+#+name: code
+#+begin_src clojure
+(defn bst-insert-tc2 [bst x comp]
+  (loop [bst bst
+         acc '()]
+    (if (nil? bst)
+      (reduce (fn [tree [lr elt branch]]
+                (if (= lr :l)
+                  (struct node elt branch tree)
+                  (struct node elt tree branch)))
+              (struct node x)
+              acc)
+      (let [elt (:elt bst)]
+        (if (= x elt)
+          bst
+          (if (comp x elt)
+            (recur (:l bst) (cons [:r elt (:r bst)] acc))
+            (recur (:r bst) (cons [:l elt (:l bst)] acc))))))))
+#+end_src
+
+Once I had the first tail recursive version, I asked my friend
+[[http://journal.batard.info/][Yogi]] how he would transform the
+bst-insert code into a tail recursive version. He did find a really
+elegant [[http://journal.batard.info/post/2009/11/05/bst][solution]], in
+Haskell. Here is the idea: instead of stacking information about the
+tree and then performing at the end calls to reconstruct the tree in
+reverse order, we can build a function constructing a new tree as we go
+from the root to the leaf. When we are on a node, what we do is
+something like that (if the element to be inserted is smaller than the
+node's element):\\
+#+name: code
+#+begin_src clojure
+(struct node elt l (:r bst))
+#+end_src
+
+The problem is, when we are doing this operation, we do not know the
+value of l. l is a tree to be construct, and we can know its value only
+by doing a new recursive call. Since we do not know the value of it at
+this time, we will created an anonymous function that will be able to
+take this value as an argument later, when the value will be known. We
+thus construct anonymous functions at each level of the recursion,
+composing them into a unique function with
+[[http://clojure.org/api#toc151][comp]]. Each anonymous function will
+return the appropriate tree for the left or right branches. At the end
+of the recursion, we know all the arguments. The last argument is the
+value of the element to be inserted. We can directly call the composed
+function which will create the whole tree. We do not even need to
+unstack anything:\\
+#+name: code
+#+begin_src clojure
+(defn bst-insert-tc3 [bst x cmp]
+  (loop [bst bst
+         f identity]
+    (if (nil? bst)
+      (f (struct node x))
+      (let [elt (:elt bst)]
+        (if (= x elt)
+          bst
+          (if (cmp x elt)
+            (recur (:l bst) (comp f (fn [l] (struct node elt l (:r bst)))))
+            (recur (:r bst) (comp f (fn [r] (struct node elt (:l bst) r))))))))))
+#+end_src
+
+The code shows how functional programming can be both elegant and
+efficient.\\
+The full code for the BST is available
+[[http://github.com/kototama/ansicommonlisp-book-clojure/blob/master/ch04/bst.clj][here]]

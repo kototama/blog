@@ -1,0 +1,116 @@
+#+TITLE: Dijkstra's algorithm in Clojure
+#+DATE: 2009-10-24
+
+The Dijkstra's algorithm is an efficient algorithm to compute the
+shortest path between two nodes of a directed graph with positives costs
+(distances). In this post we rely loosely on the
+[[http://en.wikipedia.org/wiki/Dijkstra's_algorithm][pseudo-code of
+Wikipedia]] and on the nice illustrated example of the
+[[http://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra][french version]]
+to develop this algorithm in Clojure. The functions in the clojure.zip
+namespace will not be used.
+
+We represent the graph with a map. Keys are the nodes of the graph,
+values are another map mapping each child to its distance to its
+parent.
+
+Thus, the representation for this graph:
+
+[[http://dl.getdropbox.com/u/793068/blog/images/graphdijkstraone.png]]
+
+is:
+
+#+name: code
+#+begin_src clojure
+{:A {:B 85, :C 217 }, :B { :C 25 }, :C {} }
+#+end_src
+
+Symbols (:A, :B etc.) are used to represent the nodes, but any type
+would be fine.
+
+We don't want our algorithms to rely on a particular graph structure so
+access to the graph is made via helper functions. The distance function
+return the distance between two nodes and the children function return a
+sequence containing the children for a given node.
+
+#+name: code
+#+begin_src clojure
+(defn distance [net nodesrc nodedst]
+  ((net nodesrc) nodedst))
+
+(defn children [net node]
+  (keys (net node)))
+#+end_src
+
+In the Dijkstra's algorithm, nodes' distances to the initial node are
+progressively updated and the predecessor of a node, for its known
+shortest distance, is updated. We take the same approach but we don't
+store distances with a value of infinity, i.e. the distances to the
+initial node for nodes not yet explored are not kept. We call "root" the
+initial node in our code, and "rdistance" the distance to the root for a
+given node.
+
+The rdistances are stored in a sorted map, rdists. Each rdistance is
+mapped to another map mapping each node to their predecessor for this
+rdistance. This allow to efficiently implement the
+#+begin_example
+u := vertex in Q with smallest dist[]
+#+end_example
+
+operation describe in the pseudo-code: we just need to take the first
+element of the map. Once the smallest rdistance is found, we removed it
+from the map to save space. How do we keep the rdistance of a node if
+rdistances are removed from the rdists map? Predecessors and rdistances
+are kept together in the preds map. Rdists is only used for newly
+discovered rdistances. Note that with this scheme we don't need a Q set
+like in the pseudo-code, rdists acting like a one. When rdists is empty,
+that mean we have explored all reachable nodes.
+
+When the node with the smallest rdistance has been found, we need to
+update the rdistances of its children. This is done in the update-rdists
+function.
+
+#+name: code
+#+begin_src clojure
+(defn- update-rdists [rdists preds net node dist children distance]
+  "return [rdists preds] updated"
+  (reduce (fn [acc x]
+            (let [curdist (+ dist (distance net node x))
+                  prevdist (second (preds x))
+                  nrdists (first acc)
+                  npreds (second acc)]
+              (if (nil? prevdist)
+                [(add-rdist nrdists x node curdist) (assoc npreds x [node curdist])]
+                (if (< curdist prevdist)
+                  [(add-rdist nrdists x node curdist prevdist) 
+                   (assoc npreds x [node curdist])]
+                  [nrdists npreds]))))
+          [rdists preds]
+          (children net node)))
+#+end_src
+
+When true, the condition (nil? prevdist) means that the rdistance for
+the currently examined node is not known, i.e. infinite. The reduce
+function allows us to "iterate" on each child of the node with the
+smallest rdistance, and to update the values of rdists and preds. They
+are stored together in a vector, and pass via the accumulator between
+each iteration.
+Uncommenting the printf function in the code allows us to follow the
+steps of the algorithm.
+
+#+begin_example
+minnode = :A preds = {:E [:A 173], :C [:A 217], :B [:A 85], :A [:A 0]} rdists ={85 {:B :A}, 173 {:E :A}, 217 {:C :A}}
+#+end_example
+
+For instance, the previous line means that the node with the smallest
+rdistance was A, then its children' rdistances were updated. The
+rdistance from :B is 85 and its predecessor is A, the one from :E is 173
+etc. In this case rdists and preds convey nearly the same information,
+this is because its one of the first iteration of the algorithm. Things
+change after when the exploration progress.
+Please feel free to criticize and improve the algorithm. One idea could
+be to use the memoize function to cach the result of the dijkstra
+function.
+
+*Full code is available
+[[http://snipplr.com/view/22183/dijkstras-algorithm-in-clojure/][here]]*

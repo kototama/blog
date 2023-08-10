@@ -1,0 +1,22 @@
+#+TITLE: Ray tracing, once again
+#+DATE: 2011-01-23
+
+There are already several implementations of simple raytracers in
+Clojure on the Web but I couldn't resist implementing one for myself! It
+is based on the one of the book Ansi Common Lisp by Paul Graham.
+
+Nothing particular, just perhaps the use of protocols for the dispatch
+of the normal, color and intersect functions and some code for
+displaying spirals.
+
+
+#+attr_html: :width 400px
+[[http://4.bp.blogspot.com/_tIZCX_qaj6g/TTxSslpv54I/AAAAAAAAABA/ffndqyhZ-UE/s1600/demo.png]]
+
+[[http://2.bp.blogspot.com/_tIZCX_qaj6g/TTxUCExPSzI/AAAAAAAAABI/g_-ay-O2b-E/s1600/spiral1.png]]
+
+[[http://2.bp.blogspot.com/_tIZCX_qaj6g/TTxY8zXIk3I/AAAAAAAAABY/D2Rguj_W-rc/s1600/spheres3.png]]
+
+
+Code is available here:
+[[https://github.com/kototama/ansicommonlisp-book-clojure/tree/master/src/acl/ch09/raytracing][GitHub Kototama]]

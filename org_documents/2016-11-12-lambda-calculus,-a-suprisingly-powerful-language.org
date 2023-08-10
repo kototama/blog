@@ -1,0 +1,152 @@
+#+TITLE: Lambda calculus, a suprisingly powerful language
+#+DATE: 2016-11-12
+#+SETUPFILE: ~/projects/blog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Lambda-Calculus Theory
+#+JEKYLL_TAGS:
+#+JEKYLL_PUBLISHED: true
+
+#+HUGO_TAGS: lambda-calculus cstheory
+#+HUGO_BASE_DIR: ../../
+
+
+I'm reading the book [[https://www.cis.upenn.edu/~bcpierce/tapl][Types and Programming Languages]] from Benjamin C.
+Pierce from time to time at the moment. The chapter explaining the
+*untyped lambda calculus* gave me more than one occasion to pause and
+think. The lambda calculus, invented in the 30s, is a formal system
+for expressing computation with functions and can also been seen as a
+programming language. A very simple one, yet a surprisingly very
+powerful one. A language where all computations are done with
+functions, thus the first functional programming language in the
+history of mankind. It plays an important role in the field of
+research but also as a theoretical foundation for implementing
+functional languages such as Haskell, OCaml, Scheme, Clojure etc.
+
+The lambda calculus is composed of three elements (or in programming
+language theory jargon, of three /terms/):
+
+- variables, of the form ~x~
+- abstractions, of the form ~λx.t~
+- applications, of the form ~t s~
+
+An abstraction can almost be seen like a function in "classic"
+programming languages. An application "applies" its arguments to an
+abstraction. There is nothing more. There are no booleans, numbers,
+strings, conditional statements etc. Functions accept only one
+argument. Yet, everything can be computed with the lambda calculus.
+
+A variable ~x~ is /bound/ if it occurs in the abstraction of the body
+~t~ of an abstraction ~λx.t~. It is is /free/ if it appears if it is
+not bound by an enclosing abstraction on ~x~. For example in ~(λx.x)
+x~ the first ~x~ is bound, the second one is free. A term with no free
+variables is called a /combinator/. [1]
+
+The simplest combinator is the identity function. It returns its
+argument unchanged:
+
+~id = λx. x~
+
+There are different strategies when choosing on how arguments are
+evaluated before applying them to functions. That is, there are
+different strategies to /reduce/ the terms. The most common one is
+/call-by-value/. Under this strategy a function can be applied only
+when its right-hand side has been reduce to a /value/. A value is a
+term that cannot be further reduced.
+
+Thus ~(λx.x x) (λx.x) y~ reduces to ~(λx.x) (λx.x) y~ in the first
+evaluation step then to ~(λx.x) y~ then to ~y~. Functions with
+multiple arguments can be simulated by having a function returning
+another function: ~λx.λy.x y~, for example. This is familiar to functional
+programmers as /currying/.
+
+What really impress me is that every computation are possible with
+such a simple language. I will give a few examples from the book, some
+are answers from exercises, so I you indent to read it I would suggest
+to stop your reading here.
+
+Boolean values can be /encoded/ as functions like this:
+
+~tru = λt. λf. t~
+
+~fls = λt. λf. f~
+
+ /Tru/ is a function that discards the value of its second argument
+ and returns the value of its first argument. /Fls/ is a function that
+ discards the value of its first arguments and returns the value of
+ its second argument. They are used as a representation of the True
+ and False booleans.
+
+The /test/ combinator can be defined like this:
+
+~test = λl. λm. λn. l m n~
+
+If the first argument of /test/ is ~tru~ the expression will reduce to
+~m~, if it is ~fls~ it will reduce to ~n~. For example ~test tru x
+y~ evaluates to ~tru x y~ which evaluates to ~x~. Awesome, it is
+almost like a /if/ statement!
+
+Numbers can be encoded too. The /Church numerals/ [2] are defined like
+this:
+
+~c0 = λs. λz. z~
+
+~c1 = λs. λz. s z~
+
+~c2 = λs. λz. s (s z)~
+
+and so on and so on. Functions such as ~scc~ (successor) and
+~plus~ can also be defined.
+
+~scc = λn. λs. λz. s (n s z)~
+
+~plus = λm. λn. λs. λz. m s (n s z)~
+
+Data structures such as pairs can also be encoded:
+
+~pair = λf. λs. λb. b f s~
+
+~fst = λp. p tru~
+
+~snd = λp. p fls~
+
+Take a paper and a pen and evaluate ~fst (pair v w)~. It evaluates to
+~v~, as expected.
+
+Lists can also be encoded. The list ~[x, y, z]~ can be encoded as the
+abstraction ~λc. λn. c x (c y (c z n))~. That is a /fold/ (also
+known as a /reduce/) is used to encode the list.
+
+The usual functions to manipulate lists can be defined:
+
+~nil = λc. λn. n~
+
+~isnil = λl. l (λh. λt. fls) tru~
+
+~cons = λh. λt. λc. λn. c h (t c n)~
+
+~head = λl. l (λh.λt.h) fls~
+
+~tail = λl. fst (l (λx. λp. pair (snd p) (cons x (snd p))) (pair nil nil))~
+
+It is also possible to encode lists with pairs.
+
+A mechanism similar to recursion can be defined by having functions
+reducing their arguments to a form similar to the function itself. For
+example this combinator:
+
+~(λx. x x) (λx. x x)~ reduces to himself.
+
+More advanced tricks allow to define the equivalent of recursive
+functions such as the canonical definition of factorial.
+
+Lambda calculus is a very simple but amazingly powerful language. It
+is also striking to make the comparison with some programming
+languages such as Java that could not even pass simply a function
+around before the most recent versions.
+
+Congratulation for reading until there! Given all the shortcuts I took
+to explain, if you understood everything, well done.
+
+
+[1] I'm paraphrasing the book here and also a lot below!
+[2] [[https://en.wikipedia.org/wiki/Alonzo_Church][Alonzo Church]] invended the lambda calculus.

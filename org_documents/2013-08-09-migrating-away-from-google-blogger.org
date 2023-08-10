@@ -1,0 +1,20 @@
+#+TITLE: Migrating away from Google Blogger
+#+DATE: 2013-08-09
+#+SETUPFILE: ~/Documents/Projects/Blog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_COMMENTS: true
+#+JEKYLL_CATEGORIES: Emacs
+#+JEKYLL_PUBLISHED: true
+
+#+HUGO_TAGS: emacs
+#+HUGO_BASE_DIR: ../../
+
+This blog is moving away from Google Blogger. Update your RSS reader.
+
+Moving to a self-hosted platform will allow me to:
+
+- have a better control of my data. My blog can now be versioned on GitHub and do not depend of Google anymore.
+- have a better workflow. I can now blog in plain text with Emacs, [[http://octopress.org][Octopress]] and [[https://github.com/yoshinari-nomura/org-octopress][org-octopress]].
+
+Of course the reliability may not be as good as the Google
+services but in general I think I will enjoy the journey!

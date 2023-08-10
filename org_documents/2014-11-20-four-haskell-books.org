@@ -1,0 +1,77 @@
+#+TITLE: Four Haskell books
+#+DATE: 2014-11-20
+#+SETUPFILE: ~/projects/blog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Haskell
+#+JEKYLL_PUBLISHED: true
+#+JEKYLL_COMMENTS: true
+
+#+HUGO_TAGS: haskell
+#+HUGO_BASE_DIR: ../../
+
+
+In 2013 and 2014 I read four Haskell books. In this post I'm making
+mini-reviews for each of them, chronologically ordered.
+
+* Learn you a Haskell for Great Good
+[[http://learnyouahaskell.com/][Learn you a Haskell for Great Good]] is one of the best computer science
+book I had the occasion to read, and I even admit I was a little sad
+once I finished it! It exposes the main concepts of Haskell in a very
+pedagogic way and clear writing style. After reading the book,
+functors, applicative and monads become easily understandable. The
+only drawback is that this book is not enough to start with Haskell,
+there are no explanations of how to create a Haskell project using
+Cabal, use libraries, test your application etc. I think it's okay for
+an introductory book but one should be informed. The book is suited
+for people without experience with Haskell or functional programming.
+
+* Developing Web Applications with Haskell and Yesod
+I read [[http://www.yesodweb.com/book][Developing Web Applications with Haskell and Yesod]] to discover
+other ways of building web applications, as I mostly had experience
+with Clojure and [[https://github.com/weavejester/compojure][Compojure]]. I enjoyed reading this book which is short
+but contains a lot, going from the frontend to the backend and
+explaining a lot of subjects: HTML templates, sessions,
+authentification, persistence with databases etc. You discover how a
+statically typed language can help you building a web application with
+more guarantees. The only drawback for me was that even after reading
+one book on Haskell, some of the type signatures of functions were
+still hard to understand. Some familiarity with monad transformers
+prior to reading this book may help.
+
+* Real World Haskell
+The goal of [[http://book.realworldhaskell.org/][Real World Haskell]] was to bring Haskell to a less academic
+audience by showing how Haskell could be used for "real world"
+applications, at a time where there weren't so many Haskell books
+there. In this sense I think the book succeed. There are a lot of
+interesting subjects tackled in this book, like profiling and
+performance analysis but I did not really enjoy reading it. Either the
+examples were a bit boring or the writing style was too dry for me, in
+the end I had to fight to finish this very long book (~700 pages!). I
+nonetheless appreciate that this book exist and I may use it in the
+future as a reference. The book is a bit outdated and some code are
+not valid anymore ; it was not a problem for me since I didn't try out
+the examples but this should be considered if you want to learn
+Haskell with it.
+
+* Beginning Haskell
+[[http://www.apress.com/9781430262503][Beginning Haskell]] is a paradoxical book. The truth is this book should
+not have been published because its edition and proof-reading are too
+bad. What do you think about a book where the first code sample is
+wrong? ~map listOfThings action~ instead of ~map action listOfThings~
+on page 4, come one... Also the subtitle reads "a Project-Based
+approach" but this seems to be exaggerated since you will only get some
+code samples there and there... That being said, I really enjoyed
+reading this book! I don't know if it's a good introductory book but
+it's surely is a correct second book on Haskell. It explains how to use
+Cabal, test an application, use popular libraries like Conduit, build
+parsers with attoparsec, building a Web Application with Scotty and
+Fay etc. It includes advanced topics like type programming (enforcing
+more constraints at the type-level) and even a small introduction to
+Idris. Conclusion: either burn it or read it.
+
+* Conclusion
+There are more and more books on Haskell newly published or coming,
+this makes me happy as this broaden the Haskell community, shows that
+it is growing and makes it easier to learn the language. Reading is
+not enough to learn so at the moment I'm writing small Haskell
+projects to go from a beginner to intermediate level.
