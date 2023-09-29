@@ -1,0 +1,205 @@
+#+TITLE: Notes on Nix
+#+CATEGORY: note
+ 
+* Concepts
+** override versus overrideAttrs
+
+override overrides arguments of a function (i.e. the dependencies of a package), and overrideAttrs overrides the package definition itself.
+
+#+BEGIN_SRC nix
+{ stdenv, bar, baz }: # this part gets overriden by `override`
+stdenv.mkDerivation { # This part gets overriden by overrideAttrs
+  pname = "test";
+  version = "0.0.1";
+  buildInputs = [bar baz];
+  phases = ["installPhase"];
+  installPhase = "touch $out";
+}
+#+END_SRC
+
+So, to change the version of the package, you'd do example.overrideAttrs (_: { version = "0.0.2"; }) and to replace baz with some customBaz, you'd do example.override { baz = customBaz; }
+
+From: https://www.reddit.com/r/NixOS/comments/cn6nt4/how_is_overrideattrs_different_from_override/
+
+** overridePackages and packageOverrides
+  overridePackages is deprecated in favor of overlays.
+  packagesOverride is used in the Python module.
+
+* Tips
+** Track merge requests
+
+https://status.nixos.org/
+
+https://nixpk.gs/pr-tracker.html
+
+** Deploy to a remote machine
+
+nixos-rebuild switch --flake .#<host> --target-host <host>
+
+** Writing shell scripts
+
+https://www.ertt.ca/nix/shell-scripts/#org9e3c61b
+
+** Evaluate an expression
+
+nix eval  --raw --impure --expr 'with builtins; toJSON (attrNames (import ./. {}).tools)'
+
+
+** Choose Elixir for a specific OTP version
+
+nix-shell -p beam.packages.erlangR25.elixir
+
+** Using NodeJS with Phoenix and Nix
+
+#+BEGIN_SRC shell
+
+  ## once
+  mix deps.get
+  cd assets
+  # node2nix -d --nodejs-14 -l package-lock.json
+  node2nix -d -l package-lock.json
+  nix-build -A package
+  cd ..
+  ln -s assets/result/lib/node_modules/project-name/node_modules/
+  ln -sf /home/user/projects/project-name/apps/app-name/assets/result/lib/node_modules/project-name/node_modules/ ~/
+
+  ## everytime
+  export NODE_OPTIONS=--openssl-legacy-provider
+  nix-shell -A shell
+  mix phx.server
+  # DEPLOYMENT_ENV=local iex --name ui@127.0.01 -S mix phx.server 
+
+#+END_SRC
+
+Todo: make it not recompile. https://github.com/svanderburg/node2nix/issues/118
+
+- Replace ~src = ./.~ by ~src = ./dummy;~,
+- ~mkdir dummy~.
+- ~echo "{}" > dummy/package.json~
+
+** Python
+  Derivations built with `buildPythonPackage` can already be overriden with `override`, `overrideAttrs`, and `overrideDerivation`.
+  This function introduces `overridePythonAttrs` and it overrides the call to `buildPythonPackage`.
+
+** GC problems
+
+#+begin_src nix
+nix-store --query --roots  /nix/store//0m2axb8lbpj9sqfiy4ys6pgyxmafb64b-emacs-28.2
+nix-store --gc --print-roots
+nix why-depends /run/current-system /nix/store//rwraw7nhqvc05wcc1zqrxyaickbrdhnd-ghc-9.2.4
+#+end_src
+
+#+begin_src nix
+nix-store -q --referrers $(nix-instantiate '<nixpkgs>' -A python3Packages.enamlx)
+#+end_src
+
+** Use a binary with nix
+
+Create a ~default.nix~ file:
+
+#+begin_src nix
+with import <nixpkgs> {};
+mkShell {
+  NIX_LD_LIBRARY_PATH = lib.makeLibraryPath [
+    # stdenv.cc.cc
+    # openssl
+    # ...
+  ];
+  NIX_LD = lib.fileContents "${stdenv.cc}/nix-support/dynamic-linker";
+}
+#+end_src
+
+** Flake overwrite inputs
+
+--override-input inputname path:/home/.......
+
+** nix-shell with a specific python package
+
+nix-shell -p 'python3.withPackages (ps: with ps; [ secretstorage ])'
+
+** distrobox
+
+Giving access to the host UI:
+
+```
+xhost +si:localuser:$USER
+```
+
+[[https://github.com/NixOS/nixpkgs/issues/208817#issuecomment-1374742894][Source]]
+
+** Using Nix with Org-Mode
+
+#+begin_src shell
+nix eval --impure --raw --expr '
+let
+  emacs-overlay = (builtins.getFlake "github:nix-community/emacs-overlay");
+  emacs = emacs-overlay.packages.x86_64-linux.emacsGit;
+in
+"update again when ${emacs.pkgs.org.version} > 9.6.1"
+'
+#+end_src
+
+#+RESULTS:
+: update again when 9.6.1 > 9.6.1
+
+
+** Update without breaking anything with sudo
+
+nixos-rebuild switch --use-remote-sudo
+
+** Debug flake and home-manager
+
+```
+flake = builtins.getFlake (toString ./.)
+:p flake.nixosConfigurations.sonnfel.config.home-manager.users.neosimsim.home.sessionVariables
+```
+
+** Run non-nixos software
+
+https://unix.stackexchange.com/questions/522822/different-methods-to-run-a-non-nixos-executable-on-nixos
+
+** Build a package in nixpkgs
+
+nix build .#package
+nix develop .#package
+
+** Keeping file to debug when building
+
+nix-build --keep-failed -A uxn
+
+The failed files will be kept in /tmp
+
+** See which version is currently in use for nixpkgs
+
+~nix-instantiate --eval -E '(import <nixpkgs> {}).lib.version'~
+
+Returns for example ~"22.05pre369988.1ffba9f2f68"~. ~1ffba9f2f68~ is the commit
+in ~https://github.com/NixOS/nixpkgs/commit/1ffba9f2f68~
+
+
+** Find the location of a function with nix-repl
+
+```
+λ nix repl
+Welcome to Nix version 2.3.5. Type :? for help.
+
+nix-repl> pkgs = import <nixpkgs> {} 
+
+nix-repl> pkgs.callPackage
+«lambda @ /nix/store/5m1ndnbivpsln3lcgyrqn229vmc964na-nixpkgs-21.03pre255633.c00959877fb/nixpkgs/lib/customisation.nix:117:31»
+
+```
+
+Alternative: starts with `nix repl '<nixpkgs>'`
+
+** Pass a channel to nix-shell
+   nix-shell -I nixpkgs=/nix/var/nix/profiles/per-user/user/channels/nixos-21.11 -p vlc
+
+** By pass the nix cache with a local repo
+
+--override-input attr path:...
+
+** Example of a reproducible module for a website
+
+https://git.sealight.xyz/aynish/basant/src/branch/main/flake.nix
+
