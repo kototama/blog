@@ -1,0 +1,47 @@
+#+TITLE: Notes on OCaml
+#+TAGS: ocaml
+
+* Ocaml, the language
+** Reexport a type and derives it
+
+#+BEGIN_SRC ocaml
+type t = A | B | C
+type u = t = A | B | C [@@deriving show]
+#+END_SRC
+
+** On types and decidability
+
+https://discuss.ocaml.org/t/value-restriction-and-mutually-recursive-functions/2432/2
+
+
+** Basic types
+=int= has only 31 bits / 63 bits but =nativint= also exist. =Nat= and =BigInt=
+also available. =float= is equivalent to C =double= (double precision). No
+single precision float. unit is written =()=.
+
+* Tips
+** Utop max lines no truncation
+
+#+BEGIN_SRC
+#print_length 100000;;
+#+END_SRC
+
+** Utop showing a type
+
+#+begin_src ocaml
+#show Map.empty;;
+#+end_src
+
+** Rexporting a type
+
+You can re-export the type definition and add a deriving annotation. For instance
+
+~type 'a t = 'a Stdlib.ref = { mutable contents: 'a }~
+
+** Calling stdlib when Base/Core is used
+=Stdlib.float_of_int= for example
+
+* Nix
+** nixpkgs + ocaml
+
+~λ nix shell nixpkgs#ocaml-ng.ocamlPackages_5_0.ocaml_~
