@@ -1,0 +1,28 @@
+#+TITLE: Notes on Android
+#+TAG: android
+
+* Install TWRP
+
+sudo fastboot flash recovery /tmp/twrp.img
+
+* Install Operation System Image
+#+BEGIN_SRC bash
+sudo adb root # necessary?
+sudo adb push rom.zip /data
+#+END_SRC
+
+Then boot in recovery mode and select "install", then select the image.
+
+* Backups
+
+Make backup:
+
+~adb backup -apk -shared -all -f <filepath>/backup.ab~
+
+Verify backup:
+
+~abe backup.ab backup.tar <password>~
+
+Restore backup:
+
+~adb restore backup.ab~
