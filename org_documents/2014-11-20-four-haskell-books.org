@@ -1,14 +1,6 @@
 #+TITLE: Four Haskell books
 #+DATE: 2014-11-20
-#+SETUPFILE: ~/projects/blog/setupfile.org
-#+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Haskell
-#+JEKYLL_PUBLISHED: true
-#+JEKYLL_COMMENTS: true
-
-#+HUGO_TAGS: haskell
-#+HUGO_BASE_DIR: ../../
-
+#+HUGO_TAGS: haskell books
 
 In 2013 and 2014 I read four Haskell books. In this post I'm making
 mini-reviews for each of them, chronologically ordered.

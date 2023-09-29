@@ -1,14 +1,6 @@
 #+TITLE: Playing with Haskell
 #+DATE: 2014-07-27
-#+SETUPFILE: ~/projects/blog/setupfile.org
-#+JEKYLL_LAYOUT: post
-#+JEKYLL_COMMENTS: true
-#+JEKYLL_CATEGORIES: Haskell
-#+JEKYLL_PUBLISHED: true
-
-#+HUGO_TAGS: haskell
-#+HUGO_BASE_DIR: ../../
-
+#+TAGS: haskell
 
 After reading a few books on Haskell I had to face the reality:
 learning by doing a project was necessary! 

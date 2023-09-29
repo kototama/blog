@@ -1,5 +1,6 @@
 #+TITLE: Dijkstra's algorithm in Clojure
 #+DATE: 2009-10-24
+#+TAGS: clojure cs-theory
 
 The Dijkstra's algorithm is an efficient algorithm to compute the
 shortest path between two nodes of a directed graph with positives costs

@@ -1,14 +1,6 @@
 #+TITLE: A better coder layout for the ErgoDox EZ keyboard
 #+DATE: 2017-01-29
-#+SETUPFILE: ~/projects/blog/setupfile.org
-#+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: keyboard layout ErgoDox
-#+JEKYLL_TAGS: 
-#+JEKYLL_PUBLISHED: true
-
-#+HUGO_TAGS: ergodox keyboad
-#+HUGO_BASE_DIR: ../../
-
+#+TAGS: keyboard
 
 #+CAPTION: http://configure.ergodox-ez.com/keyboard_layouts/qdvyyr/edit
 #+NAME: ergodox_coder_layout.jpg

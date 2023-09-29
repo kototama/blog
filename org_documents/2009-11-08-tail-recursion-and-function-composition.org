@@ -1,11 +1,13 @@
 #+TITLE: Tail recursion and function composition
 #+DATE: 2009-11-08
+#+TAGS: clojure cs-theory
 
 The chapter four of the [[http://www.paulgraham.com/acl.html][ANSI
 Common Lisp]] book has an interesting code to insert a node in a
 [[http://en.wikipedia.org/wiki/Binary_search_tree][binary search tree
-(BST)]]. The code, ported to Clojure, is:\\
-\\
+(BST)]]. The code, ported to Clojure, is:
+
+
 #+name: code
 #+begin_src clojure
 (defstruct node :elt :l :r)
@@ -27,9 +29,9 @@ Common Lisp]] book has an interesting code to insert a node in a
                   (bst-insert (:r bst) x comp)))))))
 #+end_src
 
-\\
-The function is non-destructive. Creating a BST can be done like this:\\
-\\
+
+The function is non-destructive. Creating a BST can be done like this:
+
 #+name: code
 #+begin_src clojure
 (def nums (reduce (fn [acc x] (bst-insert acc x <)) nil [5 8 4 2 1 9 6 7 3]))
@@ -42,7 +44,7 @@ the information gained while doing the recursion: the branches we have
 visited and the branches taken. We store the information while we go
 from the root to the leaf. We can then unstack and reconstruct the tree
 from the leave to the root. This is done in the bst-insert-tc
-function:\\
+function:
 #+name: code
 #+begin_src clojure
 (defn bst-insert-tc [bst x comp]
@@ -66,7 +68,7 @@ function:\\
 #+end_src
 
 This approach works but is a bit naive and the second loop can be
-simplified by using reduce:\\
+simplified by using reduce:
 #+name: code
 #+begin_src clojure
 (defn bst-insert-tc2 [bst x comp]
@@ -96,7 +98,7 @@ tree and then performing at the end calls to reconstruct the tree in
 reverse order, we can build a function constructing a new tree as we go
 from the root to the leaf. When we are on a node, what we do is
 something like that (if the element to be inserted is smaller than the
-node's element):\\
+node's element):
 #+name: code
 #+begin_src clojure
 (struct node elt l (:r bst))
@@ -114,7 +116,7 @@ return the appropriate tree for the left or right branches. At the end
 of the recursion, we know all the arguments. The last argument is the
 value of the element to be inserted. We can directly call the composed
 function which will create the whole tree. We do not even need to
-unstack anything:\\
+unstack anything:
 #+name: code
 #+begin_src clojure
 (defn bst-insert-tc3 [bst x cmp]
@@ -131,6 +133,6 @@ unstack anything:\\
 #+end_src
 
 The code shows how functional programming can be both elegant and
-efficient.\\
+efficient.
 The full code for the BST is available
 [[http://github.com/kototama/ansicommonlisp-book-clojure/blob/master/ch04/bst.clj][here]]

@@ -1,13 +1,6 @@
 #+TITLE: Linux distributions as a service
 #+DATE: 2013-09-28
-#+SETUPFILE: ~/Documents/Projects/Blog/setupfile.org
-#+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_PUBLISHED: true
-
-#+HUGO_TAGS: linux
-#+HUGO_BASE_DIR: ../../
-
+#+TAGS: linux
 
 One of my colleague installed Ubuntu on his Mac computers and was
 surprised by the varieties of Ubuntu distributions offered. There are

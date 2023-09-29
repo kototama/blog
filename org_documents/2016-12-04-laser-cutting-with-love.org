@@ -1,14 +1,6 @@
 #+TITLE: Laser cutting with love
 #+DATE: 2016-12-04
-#+SETUPFILE: ~/projects/blog/setupfile.org
-#+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Laser-Cutting DIY
-#+JEKYLL_TAGS: 
-#+JEKYLL_PUBLISHED: true
-
-#+HUGO_TAGS: laser-cutting DIY
-#+HUGO_BASE_DIR: ../../
-
+#+TAGS: do-it-yourself
 
 In this post I will show you how I conceived a beautifull laser-cutted wooden cube.
 

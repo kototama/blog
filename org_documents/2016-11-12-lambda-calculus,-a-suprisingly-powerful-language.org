@@ -1,14 +1,6 @@
 #+TITLE: Lambda calculus, a suprisingly powerful language
 #+DATE: 2016-11-12
-#+SETUPFILE: ~/projects/blog/setupfile.org
-#+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Lambda-Calculus Theory
-#+JEKYLL_TAGS:
-#+JEKYLL_PUBLISHED: true
-
-#+HUGO_TAGS: lambda-calculus cstheory
-#+HUGO_BASE_DIR: ../../
-
+#+TAGS: cs-theory
 
 I'm reading the book [[https://www.cis.upenn.edu/~bcpierce/tapl][Types and Programming Languages]] from Benjamin C.
 Pierce from time to time at the moment. The chapter explaining the

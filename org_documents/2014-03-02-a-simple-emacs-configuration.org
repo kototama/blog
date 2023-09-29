@@ -1,13 +1,6 @@
 #+TITLE: A simple Emacs configuration
 #+DATE: 2014-03-02
-#+SETUPFILE: ~/projects/blog/setupfile.org
-#+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Emacs
-#+JEKYLL_PUBLISHED: true
-#+JEKYLL_COMMENTS: true
-
-#+HUGO_TAGS: emacs
-#+HUGO_BASE_DIR: ../../
+#+TAGS: emacs
 
 In this post I introduce a simple, effective and maintainable
 structure for the ~.emacs.d~ configuration directory.
