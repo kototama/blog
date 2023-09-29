@@ -1,0 +1,6 @@
+#+TITLE: Dialectical Computing
+
+A piece of the intertubes.
+
+* [[notes.html][Notes]]
+* [[blog.html][Blog]]
