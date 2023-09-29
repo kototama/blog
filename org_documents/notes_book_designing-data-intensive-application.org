@@ -1,0 +1,1773 @@
+#+TITLE: Notes on the book Designing Data Intensive Application
+#+TAGS: books distributed-systems
+#+CATEGORY: note
+
+My notes on Designing Data Intensive Application from Martin Kleppmann
+
+* 1. Reliable, Scalable, and Maintainable Applications.
+** Thinking about data systems
+Three focus that appears in most software systems:
+- reliability: to work correctly in face of adversity
+- scalability: as the system grows (data volume, traffic or
+  complexity) there are reasonable ways to deal with the growth
+- maintainability: people should be able to work productively on the system
+** Reliability
+Things work correctly when there are faults. Fault: one component
+deviating from its spec. Failure: the system as a whole fails to
+provide the require service.
+*** Hardware faults
+*** Software errors
+It can be helpful to monitor/alert on the invariant of the system as a whole.
+*** Human errors
+Provide sandbox environment.
+Make it easy to rollback.
+Setup monitoring.
+*** How important is reliability?
+** Scalability
+The faculty to cope to an increasing load.
+*** Describing load
+Numbers called load parameters are used. Ex: number of write per
+seconds, numbers of user in a chatroom etc. Fan out: number of request
+to the other services in order to satisfy one incoming request.
+*** Describing performance
+Latency: how long a request need to be processed. Response time: how
+long does for the user to see a response. Service level objective
+(SLO) is part of a Service level agreement (SLA): defines expected
+performance and availability.
+
+Use percentiles to find outliers
+*** Approaches for coping with load
+Scaling up (vertical scaling), scaling out (horizontal scaling).
+Elastic systems (autoscalling) can be more complex.
+
+Not only scalability is important but ease of use and maintainability.
+** Maintainability
+Design systems that minimize the pain during maintenance.
+
+- Operability: easy for operations teams to keep the system running
+- Simplicity: make it easy to understand. Remove complexity as much as possible.
+- Evolvability: make it easy for enginners to make changes to the system in the future.
+** Operability: making life easy for operations
+- Monitoring the health of the system and restoring service if it goes into a bad state
+- Tracking down the causes of problems: system failures, degraded performance
+- Keeping software and platform up to date, including security patches
+- Keeping tabs on how different systems affect each other, so that a
+  problematic change can be avoided before it causes damage
+- Anticipiting future fproblems
+- Establishing good practices and tools for development
+- Performing complex maintenance tasks
+- Maintaining the security of the system as configuration changes are made
+- Defining processes that make operations predictable
+- Preserving the organization's knowledge about the system, even as
+  individual people come and go
+
+Good operations means making routine task easy:
+- providing visibility into the runtime behavior and internals of the system
+- automation and integration with standard tools
+- avoid dependency on individuals machines
+- providing good documentation and an easy-to-understand operational mode
+- providing good default behavior but leave administrators free to override defaults when needed
+- self-healing when appropriate
+- exhibiting predictable behavior, minimizing surprises
+** Simplicity: managing complexity
+Remove accidental complexity. Use abstractions. Finding good abstrations is hard.
+** Evolvability: making change easy
+
+* 2. Data Models and Query Languages
+Data model influences the way we think about our problem. Most
+applications are build by layering one data model on top of the
+others.
+
+** Relational model versus document model
+
+The relational model was invented in 1970 by Edgar Codd. Originaly
+developed for business data processing. Alternative models from the 70s and 80s:
+network model and the hierarchical.
+
+*** The birth of NoSQL
+Driving force:
+- need for greater scalability
+- widespread preference for free and open source software over commercial product
+- specialized query operations that are not well supported by SQL
+- frustration with the restrictiveness of the relational schemas
+
+*** The object-relational mismatch
+The document model can be sometime more natural. Example: a JSON document
+of a CV.
+*** Many-to-one and many-to-many relationships
+Everything that is meaningful to humans may need to change in the
+future. Normalization requires many-to-one relationship which do not
+fit with the document model. But normalization may requires many joins
+in a SQL database, which can affect performance and makes queries more
+complex.
+** Are documents databases repeating history?
+The most popular DB of the 70s was IMS. It used a hierarchical model,
+rather similar to JSON. Developpers had to choose between
+denormalization or doing the normalization with joins done in the
+application. Solutions were proposed: the network model and the
+relation model. The problem they were trying to resolve is still
+relevant today.
+*** The network model
+Tree-like structure like in the hierarchical model but with multiple
+parents. The programmer needed to know the access path to access data.
+Queries were complex and it was difficult to change the application's
+data model. It made an efficient usage of the hardware/resources
+available of the time. Join were done at insert time.
+*** The relational model
+Lay out all data in the open: a relation (table) is simply a
+collection of tuples. The query optimizer decides which parts of the
+query to execute in which order. Quering data in a new way can be done
+by adding indices.
+*** Comparison to document databases
+Document databases reverted back to the hierachical model: when
+storing one-to-many relations, they store it in the parent record.
+
+When representing many-to-one and many-to-many relations they use a unique
+identifier (document reference) similar to a foreign key (relation model).
+** Relational versus document database today
+*** Which data models leads to simpler application code
+It depends of the application. If the data are more tree-like,
+document model can be good. It has limitation: we cannot refer to a
+specific nested item in a document (you need the equivalent of an
+access path). Poor support for joins.
+
+If the application uses many-to-many relationships the document model
+becomes less appealing.
+
+For highly interconnected data, the document model is awkward, the
+relation model is acceptable, and graph models are the most natural.
+*** Schema flexibility in the document model
+Most document databases, and JSON support do not enforce. Sometimes
+the database are called schemaless but it is missleading since the
+code working with the data assumes a schema. The schema is implicit.
+A better description is schema-on-read vs schema-on-write.
+
+When is schemaless useful?
+- there are many different types of objects and it is not practical to
+  put each type of object in its own table
+- the structure of data is determined by external systems over which
+  you have no control and which may change at any time.
+
+Document-oriented databases can offer data locality if all the
+relevant data for the application are in the document. Some relational
+database like Google Spanner also offer such a feature: a table row
+can be interleaved within a parent table, also the column-family
+concept (Cassandra, HBase) is similar.
+*** Convergence of document and relational database
+Most relational databases have support for XML and JSON.
+** Query Languages for Data
+Declarative query language have the advantages of hiding
+implementation details, allowing transparent improvements of the
+query engine.
+*** Declarative queries on the web
+Examples: CSS, XSL
+*** MapReduce Querying
+Not fully declarative but not fully imperative neither. Provides a
+computation framework to compute data on big collections. Relatively
+low level. SQL can be implemented as a pipeline of MapReduce
+operations. MapReduce has no monopoly on distributed computations.
+** Graph-Like Data Models
+*** Property graph
+With vertices and edges.
+*** Cypher language
+*** Graph Queries with SQL
+Traversal with indetermined number of join possible with recursive
+common table expression.
+*** Triple-stores and SPARQL
+*** Semantic web
+*** RDF data model
+*** The SPARQL query language
+*** The foundation: datalog
+Cascalog is datalog for Hadoop. Query are generated by creating rules.
+Rules function as if they create new facts. Rules can be reused
+between queries. Less convenient for simple one-off queries but good
+for complex data.
+* 3. Storage and Retrieval
+  Big difference between storage engine optimized for transactional workloads and
+  those that are optimized for analytics. Two big families: log-structured storage engines
+  and page-oriented storage engines such as B-trees.
+
+** Data-Structures that power your database
+   An index is an additional structure that is derived from the primary data.
+   For write, hard to beat the simplest operation: appending to a file. Any
+   kind of index needs to be updated everytime data is written. Tradeoff: index
+   slow down writes but speed up reads.
+
+*** Hash Indexes
+    Hash table index have limitations: hash table must fit in memory, range queries
+    are not efficient.
+
+*** SSTables and LSM-Trees
+    Sorted String Table.
+    The sorting can be maintained in memory (before being written to the disk) with trees.
+    The in-memory tree is sometimes called a memtable.
+
+*** Making an LSM-tree out of SSTables
+    Log-Structured Merge-Tree. Storage engines that are based on this principle
+    of merging and compacting sorted files are often called LSM storage engines.
+    Seen into: LevelDB, Cassandra, Lucene, ElasticSearch.
+    SSTables are used to write LSM-trees to the disk.
+
+*** Performance optimizations
+
+** B-Trees
+   Most common. B-trees have stood the test of time very well. They remain the standard index implementation
+   in almost all relational databases and many nonrelational databases too.
+
+*** Comparing B-Trees and LSM-Trees
+   LSM-Trees are typically faster for writes whereas B-trees are thought to be
+   faster for reads. Reads are typically slower on LSM-trees because they have
+   to check several different data structures and SSTables at different stages
+   of compaction. However benchmarks are often inconclusive and sensitive to
+   details of the workload. Test the systems with a typical workload in order
+   to make valid comparison.
+
+**** Advantages of LSM-trees
+   B-tree index must write every piece of data twice: once to the write-ahead log
+   and once on the tree page itself (and perhaps again as pages are split). There is also
+   an overhead from having to write an entire page at a time, even if only
+   a few bytes in that page changed.
+
+   Log-structured indexes also rewrite data multiple times due to repeated
+   compaction and merging of SSTables. This effect - one write to the database
+   resulting in multiple writes to the disk over the course of the database's
+   lifetime - is known as write amplification.
+
+   LSM-trees are typically able to sustain higher write throughput than
+   B-trees, partly because they sometimes have lower write amplification
+   (although this depends on the storage engine configuration and workload) and
+   partly because they sequentially write compact SSTable files rather than
+   having to overwrite several pages in the tree. This difference is
+   particularly important on magnetic hard drives, where sequential writes are
+   much faster than random writes. LSM-trees can be compressed better ahd tnus
+   often produce smaller files on disk than B-Trees.
+
+**** Downsides of LSM-trees
+   A downside of a log-structured storage is that the compaction process can
+   sometimes interfere with the performance of ongoing reads and writes. It can
+   happen that compaction cannot keep up with the rate of incoming writes.
+   B-trees key exist only in one place making it attractive for databases that want
+   to offer strong transactional semantics: in many relational databases,
+   transaction isolation is implemented using locks on ranges of kes, and in a B-tree
+   index, those locks can be directly attached to the tree.
+
+**** Other indexing structures
+   Secondary indexes are essential for performing joins efficiently.
+
+**** Storing values  within the index
+   In some situations, the extra hop from the index to the heap file is too
+   much of a performance penalty for reads, so it can be desirable to store the
+   indexed row directly within an index. This known as clustered index.
+   Multidimension indexes can be used for geo-localisation or multi-dimensioned
+   data (date + temperature for ex.).
+
+**** Keeping everything in memory
+   Redis and Couchbase provide weak durability by writing to disk
+   asynchronously. Counter-intuitively, the performance advantage of in-memory
+   databases is not due to the fact that they don't need to read from disk.
+   Even a disk-based storage engine may never need to read from disk if you
+   have enough memory, because the operating system caches recenty used disk
+   blocks in memory anyway. Rather, they can be faster because they can avoid
+   the overheads of encoding in-memory data structures in a form that can be
+   written to the disk.
+
+   Besides performances, another interesting area for in-memoryr databases is
+   providing data models that are difficult to implement with disk-based
+   indexes. Redis for examle offers a database-like interface for queues and
+   sets.
+
+
+** Transaction processing and analytics
+   OLTP (Online Transaction Processing) vs OLAP (Online Analytical Processing).
+
+** Column-Oriented Storage
+   Don't store all the values from one row together but store all the values
+   from each column together instead. If each column is stored in a separate
+   file, a query only needs to read and parse those columns that are used in
+   that query, which can save a lot of work.
+
+   Note: Cassandra have a concept of column families, inherited from BigTable.
+   They are not column-oriented: within each column family, all columns from a
+   row are stored together. Also don't use columns compression. So it is mostly
+   row-oriented.
+* 4. Encoding and evolution
+- With server side applications you may want to perform a rolling upgrade (upgrade
+on a few nodes, to see if it works) when changing the data format
+- With client-side applications the update happens (mostly) when the user wants
+In both casese old and new versions of the code AND old and new versions of the
+data may coexist. Backwards and forwards compatiblity are thus necessary.
+Forward compatibility is the hardest: old code need to ignore future additions
+made by new code. Severeal format such as JSON, XML, Protocol Buffers, Thrift
+and Avro allow new and old data to coexist.
+** Format for encoding data
+Translating from in-memory to byte sequence: encoding (also serializing or
+marshalling).
+Reverse: decoding (parsing, deserializing, unmarshalling). Used as soon
+as two processes do not share the same memory.
+*** Language-Specific formats
+Java: io.Serializable. Python: Pickle. Ruby: Marshall. Also 3rd libs.
+Pros: convenient. Cons: tied to a language, need to instantiate arbitrary classes (often a
+security problem), versioning is often an after thoughts, forwards and backwards
+compatibility often ignored, efficiency often an afterthought.
+*** JSON, XML and binary variants
+JSON, XML, CSV: textual so somewhat human-readable.
+Some problems:
+- ambiguity regarding the encoding of numbers. CVS cannot distinguish a number
+  and a string (without a schema). JSON has no distinction between integers and floats.
+- JSON has problems with numbers >> 2^53
+- no support for binary strings in JSON and XML. Base64 is used but increase
+  size by 33%.
+- optional JSON schema support but not well established
+*** Binary encoding
+JSON can be seen as a lowest-common denominator encoding format. For internal
+data there is less pressure to use that and more space-efficient format can be
+used. JSON binary encoding: MessagePack, BSON, BJSON, UBJSON, Bison and Smile
+etc. They don't prescribe a schema so it's needed to include the fields name in
+the encoding. In the end the JSON encoding save litte space and reduce
+lisibility.
+*** Thrift and Protocol Buffers
+Thrift: facebook, Protocol Buffers: Google. Thrift has two encodings:
+BinaryProtocol and CompactProtocol and two JSON encoding.
+**** Field tags and schema evolution
+**** Datatype and schema evolution
+Protobuf: changing an optional into repeated (multi-values) is possible: new
+code see a list, old code sees only the last elements.
+**** Avro
+Subproject of Hadoop because Thrift did not fit, Two shcema languages: one for
+human, and one easier to parse for machines. Compact but the binary can be
+decoded only with a schema.
+***** Writer's schema and reader's schema
+Key concept: writer schema and reader schema do not need to be the same, just to
+be compatible. Difference between both schemas are resolved by the Avro library.
+***** Schema evolution rules
+Null for a type must be explicitely allowed, with an union type. No optional or
+required types but null and default values.
+***** What is the writer's schema?
+Can be stored with the encoded data (Hadoop) or retrieved based on a version
+number. Version number can be incremented or a hash of the schema.
+***** Dynamically generated schemas
+Since fields are generated by names, it is easier to dynamically generate them,
+for example for a database export. The code does not need to take care of fields
+number if the DB schema changes (p126)
+***** Code generation and dynamically typed languages
+Not much point to generate code since there no compile-time type checker to
+satisfy. For static languages, Avro provides code generation, but can also be
+used without.
+*** The merits of schemas
+Schemas in Thrift, Protocol Buffers and Avro are much simpler than in XML. The
+ideas behind these encoding are not new, for example ASN.1 is from 1984. Its
+binary encoding (DER) is still used for SSL certificates (X.509). It supports
+schema evolution with tag numbers but complex and badly documented.
+Advantages of schemas:
+- more compact than "binary JSON" (no encoding of the keys)
+- schema is valuable for documentation
+- keeping a database of schema allows to check forward and backward
+  compatibility of schema changes
+- for statically languages, allow to generate code
+** Modes of dataflow
+Some of the most common way data flows between processes.
+*** Dataflow through databases
+In a DB the process that writes encode the data and the process that reads it
+decodes. If there is a single process accessing the DB: can be seen as sending a
+message to your future self. If different processes (different applications or
+services or several instances of the same service) access the DB then forward
+compatibility may be required. Ex: an old version applicatino decodes the object
+and reencode it. A new field was added, does the old code preserves it when
+reencoding?
+**** Different values at different time
+Migrating data with the new code is possible but expensive. Most DBMS allow
+simple change (adding a column) without migration. Migration gives the illusion
+that everything was written with only one schema.
+*** Dataflow through services: REST and RPC.
+When two processes need to communicate over the network a common model is
+client/server. A server can also be a client from another service. This lead to
+a service oriented architecture or (more recently) microservices.
+**** Webservices
+A service that speaks HTTP. Not necessarly for the web. Two populars approaches.
+REST: not a protocol but a design philosophy: simple data format, URLs for
+resources, HTTP features, cache controle, authentication, content type
+negotiation.
+SOAP: XML oriented. Often used over HTTP but independent: do not use most HTTP
+features but comes with its related standards (web service framework). API
+described with WSDL. Can be used for code generation. SOAP messages are often
+too complex to be created manually, requires tooling. PLs not supporting SOAP
+have a harder time to integrate.
+**** The problems with RPCs
+EJB, RMI: limited to Java, DCOM: limited to Microsoft, CORBA: complex and not
+forward or backward compatible. All based on RPC. The approach is flawed:
+- a local function is predictable, a network call is not
+- a local function either returns or throws an exception. A network call can
+  timeout.
+- retrying a request may lead to an action being performed multiple time.
+  Idempotence need to implemented.
+- variable execution time
+- pointers cannot be passed, encoding for the network has to be done:
+  problematic for larger objects
+- client/server may be implemented in a different language so the RPC framework
+  must translate datatypes
+There is no point of trying to make a remote service look like a local call.
+**** Current directions for RPC
+Despite flaws, still there. Avro, Thrift and Protocol Buffers all have RPC
+implementations. Rest.li: uses JSON over HTTP. This new generation is more
+explicit about the network. Custom RPC with binary encoding can have better
+performance than generic JSON over REST. REST advantages: good for
+experimentation and debugging. Large support: servers, caches, load balancing,
+proxies, firewalls, monitoring, debugging tools, testing tools etc.
+**** Data encoding and evolution for RPC
+Reasonable assumption: servers will be updated first. Thus only backward
+compatibility on requests and forwards compatibility on responses is needed.
+Service compatibility is made harded if the service is used by different
+organisations: it's then harded to update the client.
+*** Message-Passing Dataflow
+Message brokers (IBM Websphere, RabbitMQ, ActiveMQ, Apache Kafka etc.).
+Distributed actor frameworks (Akkea, Orleans, Erlang OTP).
+* 5. Replication
+Why?
+
+- Latency: have data geographically close the users,
+- Availability: some parts may fail
+- Increase read throughput
+
+Three popular algorithms: single-leader, multi-leaders and leaderless. Many
+trade-offs: synchronous or asynchronous. Replications of database is an old
+topic and studied since the 70s but many applications developpers are new to the
+subject.
+** Leaders and followers
+Each node having a copy is called a replica. Each write needs to be processed by
+each replica. Most common solution: leader-based replication (called
+active/passive or master-slave replication).
+
+1. One replica becomes the leader (or master or primary). Writes are processed
+   by the leader.
+2. Other replicas are followers (read replicats, slaves, secondaries, hot
+   standbys). Leader sends the data change as part of a replication log or
+   change stream. Followers take the log and apply the writes.
+3. Read can be done either on the leader or on the followers.
+
+Built-in PostgreSQL, MySQL, Oracle Data Guard etc. Also in non-relational DBs:
+MongoDB, RethinkDB, Espresso. Also in Kafka and RabbitMQ.
+*** Synchronous versus Asynchronous replication
+In relational DBs: often a parameter. Synchronous: leader waits for the
+replication to happen before returning. In practice it's enough for one outage
+to put he system to halt so often only one follower is synchronous. It if
+becomes then an async follower is made synchronous. This guarantee an up to date
+copy on at least two nodes. Sometimes called semi-synchronous. If completely
+async: a write confirmed to the client may not be durable. Research subject:
+chain replication, used in MS Azure storage.
+*** Setting up new followers
+Usually done by copying a snapshot and replaying events after its date from the
+replication log.
+*** Handling node outages
+
+**** Follower-failure: catch-up recovery
+From its log, it knows the last transaction before the crash.
+
+**** Leader failure: failover
+A follwer is promoted to leader. Agreeing on a new leader is a consensus
+problem. Old leader coming back must come back as follower. Clients must
+redirect their writes to the new leade. Problems that can appear:
+
+- if async replication used, new leader may not have all writes. What to do with
+  the old writes? New leader can have received conflicting writes since. Often
+  discarded. May violate durability's expectations.
+- discarding writes is specially dangerous if other systems are synchronisng
+  with the DB context
+- What is the right timeout to detect a failed leader? Load spike or network
+  glitch could trigger a failover and makes the situation worse.
+
+**** Implementation of replication logs
+
+***** Statement-based replication
+SQL statements are send to followers. Problematic when the statement are not
+deterministic (using now() or random() function), when using autoincrement, or
+when they depend of the DB state (UPDATE... WHERE...), have side-effects
+(triggers, stored procedures)
+
+***** Write-aheadr log (WAL) shipping
+The leader can sed its log (SSTables, B-Tree) to the followers. Disadvantage:
+the log has low-level details (bits and disks blocks), it couples replication to
+the storage engine. If the DB changes its storage format, its often not possible
+to run different version of the DB for the follower and leader: no-zero downtime
+upgrade. Used in PostgreSQL and Oracle.
+
+***** Logical (row-based) log replication
+Alternative: use different format. The replication log is then called the
+logical log. A sequence of records is used. Can more easily be kept backward
+compatible. Easier for external application to parse: can be used for a data
+warehouse, building custom indexes and caches etc.
+
+***** Trigger-based replication
+Sometimes more flexibility is needed to control the use of the replication.
+Triggers can be used but have greater overheads and limitations.
+
+*** Problems with replication log
+When the workload has more reads than writes, it's possible to scal by adding
+more followers. Only works with asynchronous replication: otherwise a single
+node failure would make the system unavaiable for writing. With asynchronous
+replication, the system is eventual consistent. The inconsistencies introduced
+by a potential lag can lead to different problems.
+
+**** Reading your own writes
+Applications where users post their data and then visualize them need
+read-after-write consistency, aka read-your-writes. Solutions:
+
+- when reading content coming from the user, read if from the leader
+- not possible if most of the content is editable: other criteria required. Time
+  of updates can be tracked and recent updates read from the leader
+- client can remember the timestamp of its most recent updates. Allow to know if
+  a replica is enough up to date. Timestamp can be logical (log sequence for ex)
+  or actual system clock (! clock synchronisation
+
+**** Monotonic reads
+Event can be seen moving backwards in time if read from different replicas.
+Monotonic reads guarantee it does not happen. One solution: read always from
+some replica (hash of user id for example).
+
+**** Consistent prefix reads
+Violation of causality can happen if a client read from different partitions.
+Another type of guarantee is need: consisten prefix read.
+
+Important article: replicated data consistency explained through baseball.
+
+Any writes causally related could be read from the same partition. If the DB
+applies writes in the same order, then good but in a distributed systems
+different partitions operates independently.
+
+**** Solutions for replication lag
+Worth thinking about how the application behaves if lag increases from several
+minutes or hours. Do not pretent or assume replication is synchronous.
+
+Some stronger guarantees can be provided than the underlying DB, for example, by
+doing some reads on the leader but it is easy to get wrong when implementing
+them. Guarantees are traditionally provided by transactions, harder in a
+distributed system to achieve.
+
+** Multi-leader replication
+Downside with only one leader: all writes go through it. When more than one node
+accept writes, we speak about multi-leader configuration.
+
+*** Use cases for multi-leader replication
+Rarely makes sense to have multiple leaders in one datacenter: benefits rarely
+outweight the added complexity.
+
+**** Multi-datacenter operation
+If the DB is in multiple DCs and there is only one leader, the leader is in only
+one DC! With multi-leader configuration we cah have one leader per DC.
+- Performance: in single-leader configuration a failover can promote a follower.
+In multi-leader configuration each datacenter can operate independently.
+- Tolereance of network problems: traffic betwwen DCs usually goes over the
+  internet. Single-leader configuration is very sensitive to problems in the
+  inter-datacenter link because writes are made synchronously over the link.
+Often implemented with external toolts (Tungsta Replicator for MySQL, BDR for
+PostgreSQL etc).
+Mutli-leader disadvantages: concurent modifications in various DCs may lead to
+conflicts and must be resovled.
+Sometimes retrofitted in DBs, lead to pitfalls: autoincrementing keys, triggers
+and integrity constraints can be problematic. Considered dangerous territory.
+
+***** Clients with offline operation
+Calendars app need to accept writes and reads, regardless of the status of the
+connection. They act as a leader and there is an asynchronous replication
+process. It's hard and a lot of app have/had problems. CouchDB aims to make this
+kind of replication easy.
+
+***** Collaborative editing
+Similar to a distributed DB. Changes are applied to a local replica (state of th
+doc in the app) and asynchronously replicated. Guarantees that there are no
+conflicts can be done with a lock. For faster collaboration, unit of change can
+be made smaller (keystroke) but conflicts resolution must be implemented.
+
+**** Handling write conflicts
+
+***** Synchronous versus asynchronous conflict resolution
+Synchronous detection is possible (wait for the write to be replicated to all
+replicas) but in practice it would prevent each replica to accept writes
+independently, thus losing the advantages of a multi-leader installation
+
+***** Conflict avoidance
+Many systems handle writes conflicts poorly. When a user edits its own data,
+conflicts can be avoided by reading from the same replica. Sometimes the
+assigned leader need to be changed (maintenance) in such case the conflict
+avoidance breaks.
+
+***** Converging toward a consistent state
+In multi-leader, no clear ordering of writes. Possible solutions:
+- each write have an id, highest win. Last write win. Prone to data lost but
+  popular.
+- give each replica has a unique ID, lets write at higher number replica takes
+  precedences. Prone to data lost.
+- sometimes merge the values together
+- record the conflict and let the application resolves it at some later time
+
+***** Custom conflict resolution logic
+Most multi-leader replication tools allow resolution at the application level.
+On write: Bucardo allow to write a Perl snippet for example (PostgreSQL tools).
+On read: all conflicts are stored. On read, all versions are send. The
+application must resolve the conflict. Interesting research for automatic
+conflict resolution:
+- CRDT, family of datastructures that can be replicated and concurrently edited
+  by users. Two-way merge.
+- Mergeable persistent datastructures. Track history explicitely (like Git).
+  Three-way merge function.
+- Operational transformation. The algorith behind Etherpad and Google Docs. For
+  concurrent editing of an ordered list of items.
+
+***** What is a conflict?
+Sometimes obvious, sometimes not. Ex: a booking system where the availability of
+the room is done on two different leaders.
+
+**** Multileader replication topologies
+With multiple leaders, different network topologise. Circular, star and
+all-to-all topology. Most general is all-to-all. MySQL by default: circular.
+Star can be generalized to a tree. Fault-tolerance of circular topology is not
+good. Causality can be violated in all-to-all technology when some network
+segments are faster than others. Technics such as version vectors can be used to
+keep the ordering. Conflicts detection is often poorly implemented: PostgreSQL
+BDR does not provide causal ordering of writes and Tungsten Replicator for MySQL
+does no try dectect conflicts.
+
+** Leaderless replication
+Used by AWS Dynamo. Riak, Cassandra and Voldemort are leaderless, also known as
+Dynamo-style.
+
+Note: the DynamoDB has nothing to do with Dynamo. It is a single-leader
+replication.
+
+*** Writing to the database when a node is down
+
+In such an architecture, there is no fail-over. If one replica is down, it will
+miss the write. Read requests are sent to several nodes in parallel. Version
+numbers are used to determine which values is newer.
+
+**** Read repair and anti-entropy
+ How does a node catches up after it went down? read repair: client can detect
+ old values (with version numbers) and writes newer values back to the replica.
+
+**** Quorums for reading and writing
+ w: number of confirmed writes
+ r: number of confirmed reads
+ n: number of replicats (not necessarily equivalent to total nodes if there is
+ partitioning)
+
+ If we ensure that w + r > n we are sure to get the latest value.
+
+ A typical configuration is setting n to an old value (3 or 5 for example) and
+ then
+ w = r = (n + 1) / 2 (rounded up).
+
+*** Limitations of quorum consistency
+Can implies higher latency or if relaxed, stalled values. There are edge-cases
+were stalled values are returned: sloppy quorums, concurrent writes, writes
+concurrent with a read, if a write fails but was not rolled back, timing
+problems etc. It's wise to not take quorum as absolute guarantee, Dynamo-style
+DBs are generally optimized for use-cases that can tolerate eventual
+consistency. Stronger guarantees requires transactions or consensus.
+
+**** Monitoring staleness
+ Monitor to prevent stale replication. For leader-based database, there is
+ position, an order for the writes, so a metric for the lag can be build. For
+ leaderless replication, it's a research subject. Also know as staleness
+ measurement.
+
+*** Sloppy quorums and hinted handoff
+ Databases with quorum can tolerate nodes going down or being slow, making them
+ good for high availability and low latency. Quorums are not perfect: a network
+ interruption could cut a client form a high number of nodes. In a large cluster
+ it's likely that a client can connect to some databases during a network
+ interruption. Either: return errors to all request or: accept writes anyway and
+ write them to some availables nodes (not the one from the usually "home" n
+ nodes). The later is sloppy quorum. Once the network is fixed, the writes go to
+ the original "homes" nodes: this is hinted handoff.
+
+ Sloppy quorums increase write availability. In a sense, it's not a quorum: the
+ reads won't see the new values until the return is fixed. It's a guarantee of
+ durability.
+
+**** Multi-datacenter operation
+ Usually each write is sent to all replicas, regardless of the datacenter but the
+ client usually only waits for acknowledgement from a quorum of nodes from the
+ same datacenter: thus unaffected by delays and interruptions on the
+ cross-datacenter link.
+
+*** Detecting concurrent writes
+To become eventuel consistent, in case of a concurrent writes, the data need to
+converge.
+
+**** Last write wins (discarding concurrent writes)
+Force a natural ordering with a timestamp. Poor choice for conflict resolution:
+data can be lost. Use UUID as key, avoid concurrent writes.
+
+**** The "happens-before" relationship and concurrency
+Two operations are concurrent if neither happen before the other = neither know
+about the other. It's not important if they really overlap in time or not
+(clock, slow network, interrupted network are enough!).
+
+**** Capturing the happens-before relationship
+Can be capture with versioning keys and forcing client to read the key before a
+write. If a write is done without a version number, it is concurrent to all
+other writes and does not overwrite previous values but it will be returned on
+the subsequent reads.
+
+**** Merging concurrent written values
+Merging siblings values is similar to conflict resolution in leaderless
+configuration. A deleted value must be marked as such, otherwise just removing
+it put it at risk of being it recreated during a merge. "Tombstone" are the name
+of such markers. Merging siblings in application code can be error-prone. Riak
+supports CRDTs.
+
+**** Version vectors
+Collection of all version numbers from all the replicas (for the values seen
+from other replicas). Riak: dotted version number ("causal context"). Version
+vectors allow a distinction between overwrites and concurrent writes.
+
+** Summary
+Replication for: high availability, disconnected operation, latency,
+scalability. Three main approaches: single-leader replication, multi-leader
+replication, leaderless replication. Asynchronous or synchronous.
+
+Consistency models for when a replication lag occurs:
+
+a) Read-after-write consistency
+Users should always see the data they submitted themselves.
+
+b) monotonic read
+After users have seen the data at one point in time, they should not see the
+data at a previous point in time.
+
+c) consistent prefix reads
+Users shoud see the data in a state that makes causal sense: for example a
+question before its answer.
+
+* 6. Partitioning
+
+For a very large dataset or throughput, we need to break the data into partitions, aka sharding.
+Naming:
+
+| Database                            | Partition name |
+|-------------------------------------+----------------|
+| MongoDB / ElasticSearch / SolrCloud | shard          |
+| HBase                               | region         |
+| BigTable                            | tablet         |
+| Cassandra                           | vnode          |
+| Couchbase                           | vBucket        |
+
+Each partition is like a small DB. Partitioning is mostly done for scalability.
+Dataset is distributed across many disk and query load distributed across
+processors.
+
+** Partitioning and Replication
+
+Usually combined with replication so that copies of each partition are stored
+on multiple nodes. 
+
+** Partitiong of key-value data
+
+*** Partitioning of Key Range
+
+Simple, allow range scans but can lead to hot spots (more data on the same
+partition than the others). Can be mitigated by choosing carefully the key.
+For example for sensors: <sensor-name><timestamp> and not only <timestamp>.
+
+*** Partitioning  by hash of key
+
+Have a hash function for the keys, then each partition is delimited by the range
+of hashes. But now keys that were adjacent are scattered.
+
+MongoDB: with hash-based sharding node, any range query has to be sent to all
+partitions. Riak, Couchbase, Voldemort: no range query on the first key.
+Cassandr compromises: a "compound primary key" consist of several columns. A
+query cannot search for the range of value for the first column but ok for the
+next columns. Elegant for one-to-many relationships, example of keys: `(user_id,
+update_timestamp)`.
+
+*** Skewed workloads and relieving hot spots
+
+Can happen even with hashing if lots of writes happen on the same key. A random
+number can be added to the key, forcing different partitions to be used but then
+all the partitions must be query manually to retrieve all data. No way currently
+to solve the problem automatically.
+
+** Partitioning and secondary indexes
+
+Second indexes are used to search for occurences of a particular value: all
+actions from user 123, all articles with the ord "hogwash" etc. Very important
+for search servers such as Solr and ElasticSearch. But they don't map to
+partitions. Document based partitiong and term-based partitiong.
+
+*** Partitioning secondary indexes by document
+Aka "local index"
+
+If the DB support only a key-value model, it's tempteting to implement a second
+index manually. Possible but hard to get right: race-conditions, intermittent
+write failures.
+
+MongoDB, Riak, Cassandra, ElasticSearch, SolrCloud and VoltDB all use
+document-partitioned secondary indexes. Querying all documents for a particular
+value of the secondary key ("all red cars" for example" may lead to query
+multiple partitions, sometimes called scatter/gather, which can make the query
+very expansive. Recommanded to structure the partitioning scheme so that
+secondary indexes are served from the same partition but not always possible
+("red cars made by Honda": use two secondary indexes).
+
+*** Partitioning secondary indexes by term
+Aka "global index"
+Index are term-partitioned: the term determines the partition of the index. Ex
+of term color:red. 
+
+Read are more efficients: instead of doing scatter/gather, a client can make a
+request to the partition containing the searched term.
+
+** Rebalancing Partitions
+Need when: query throughput increases, dataset size increases, a machine fails.
+DB is available when doing the rebalancing.
+
+*** Strategies for Rebalancing
+You can't partition with `hash mod N` where N is the number of machines because
+N will change and force too many keys to move.
+
+*** Fixed number of partitions
+Solution: create more partitions than nodes and assigns all partitions to nodes.
+"For example, a database running on a cluster of 10 nodes may be split into
+1,000 partitions from the outset so that approximately 100 partitions are
+assigned to each node.". When a new node is added, a few partitions are moved.
+Used in Riak, Elasticsearch, Couchbase.
+
+*** Dynamic partitioning
+For DBs using key range partitioning, a fixed number of partitions is not
+convenient. Having the boundaries wrong and reconfiguring them would be very
+tedious. Done by HBase and RethinkDB.
+Partitions that reach a certain threshold (ex 10GiB) are split. After the split,
+one half can be transferred to an another node.
+Advantage: adapts to the total data
+volume. Disadvantage: in the beginning all data go to the same partition.
+Possibility of pre-splitting.
+
+*** Partitioning propertionally to nodes
+Fixed number of partitions per node. Used by Cassandra (256 partitions per
+default per node) and Ketama.
+
+** Operations: Automatic or Manual Rebalancing.
+Couchbase, Riak and Voldemort suggests a partition assignment automatically but
+requires administrator to commit it. Fully automated is convenient but can cause
+performances problems. Specially dangerous with automatic failure detection (an
+overloaded node could be seen as dead).
+
+** Request Routing
+How do a client knows which node to access? The general problem is service
+discovery. Allows client to connect to any node, send all request to a routing
+tier, require clients to be aware of the partitioning. Cassandra and Riak uses a
+gossip protocol among the nodes to disseminate any changes in the cluster state
+(no Zookeeper). Zookeeper is used by HBase, SolrCloud and Kafa. "When using a
+routing tier or when sending requests to a random node, clients still need to
+find the IP addresses to connect to. These are not as fast-changing as the
+assignment of partitions to nodes, so it is often sufficient to use DNS for this
+purpose."
+
+** Parallel Query Execution
+Most NoSQL supports only simple read or write to a single key but some
+relational databases products supports massively parallel processing (MPP)
+queries.
+   
+** Summary
+Main approaches to partitioning: key range, hash partitioning
+Partitioning for secondary indexes: document-partioned indexes (local indexes)
+and term-partitioned indexes.
+
+* 7. Transactions
+Many things can go wrong: database or hardware can fail at any time (also in the
+middle of write), application may crash at any time, interruptions in the
+network, clients writing at the same time overwriting each other changes, race
+conditions etc. With transactions a DB provides safety guarantees. Somtimes
+necessary to compromise to get better performance. Some safety can be
+provided without transactions. What safety guarantees and what cost bring transactions?
+
+** The Slippery Concept of a Transaction
+Transactions in relational databases were introduced in SystemR. Nowdays, 40 years later,
+all relational databases follow a similar model. With NoSQL appearing in the
+later 2000s, many new generation of DBs abandonned transactions or redefined
+them (weaker guarantees).
+
+*** The Meaning of ACID
+The definition of ACID properties are not precise enough so the same term can
+mean different things for two different databases.
+
+- Atomicity: grouped operations (ex: writes) are either all successfully
+  executed or aborded.
+- Consistency: some statements about the data (constraints) are always true.
+    But this depends of the application invariants, so the C does not really
+    belong in ACID.
+- Isolation: concurrently executed transactions are isolated from each other.
+  Serializability: each transaction can pretend it is the only running in the
+  DB. The result is the same as if the transactions had run serially (one after
+  another). Serializable isolation is rarely used in practice: the performance
+  cost is too high.
+- Durability: persist data.
+
+*** Replication and Durability
+- correlated fault: a power outage or a bug that crashes every node on a particular
+input can happen thus it's better to write on the disk, even for in-memory DBs.
+- in an asynchronous system, recent writes may be lost when the leader becomes unavailable.
+- even fsync for SSDs is not guaranteed to work! Disk firmware can also have
+  bugs.
+- a worn-out SSD disconnected from power, can start losing data within weeks to months.
+- etc
+
+Technics should be used together: writing to disk, replication and backups.
+
+*** Single-objects and multi-objects operations
+Many non-relational databases don't have a way of grouping operations together.
+ Atomicity can be implemented using a log of crash recovery. Isolation can be
+ implemented using a lock for each object. Some DBs provide atomic (isolated)
+ increment, compare and set operations.
+
+**** The need for mutli-objects transactions
+Difficult to implement accross multiple transactions. For relational DBs, useful
+for example for foreign keys.
+- Updating denormalized data in document oriented-databases.
+- For DB with secondary indexes (from a transaction point of view, these indexes
+  are different objects)
+
+**** Handling errors and aborts
+ACID DBs aborts if a guarantee cannot be hold. But some DBs, specially the one
+with leaderless replication, work much more on a best effort basis.
+Popular ORM don't retry transactions (Ruby, Python) even if aborts are designed
+for that. 
+Abording a transaction is not perfect:
+- the transaction can succeed but the network can fail just after, causing the
+  transaction to be restarted
+- if the error is due to overload, retrying make it worse. 
+Use fixed number of retries, exponential backoff or handle these sort of errors
+differently (if possible).
+- if the transaction has side-effects outside of the DB (sending an email),
+  these side-effects may happen multiple time
+- if the process fails while retrying, any data is lost
+
+** Weak isolations levels
+Serializable isolation guarantees that the DB have the same effect as if they
+ran serially. It has a performance cost so it is common to prefer weaker levels
+of isolation. Even some relational DB don't use ACID.
+
+**** Read commited
+Most basic level of transaction isolation. 
+1. When reading, we get only data that were commitid (no dirty reads)
+2. When writing, we only overwrite data that has been commited (no dirty writes)
+
+***** No dirty reads
+With dirty reads:
+- a transaction can see some of the updates (from another transaction) but not others.
+- a transaction aborts so a write is rollback but another transaction see values
+  that were not commited
+
+***** No dirty writes
+A write overwrites an uncommited write. Conflicting writes can be messed up.
+
+***** Implementing read committed
+For dirty writes, often implemented with lock at the row level. Could we use the
+same lock for read? Yes but one long running write transaction would block many
+other transaction (potentially only read transactions). Most databases do as
+follow: for every object written, the old value is remembered and used for read.
+
+**** Snapshot isolation and repeatable read
+There can be a timing anomaly when objects are updated, even with read
+transaction isolation. Ex: the synchronizing of two banks account. Also called
+read skewed or non-repeatable read. Name overloaded (see skewed workload).
+Such temporary inconsistencies can be problematic: backups, analytic queries.
+Most common solution: snapshot isolatiions, each transaction see only the DB at
+the start of the transaction. Supported by PostgreSQL, MySQL, etc.
+
+***** Implementing snapshop isolation
+Key principle of snapshot isolation: readers never block writers and writers
+never block readers. The database keeps several commited versions of an object
+so that various in-progress transactions see the state of the DB at various
+points in time. It's called multi-version concurrent control (MVCC). Requires a
+background process for garbage collection.
+
+***** Visibility rules for observing a consistent snapshot
+
+Objects are visible if: a) at the time the reader's transaction started, the
+transaction that creatd the object has already commited. b) the object is not
+marked for deletion or if it is, the transaction that requested deletion had not
+yet commited when the reader's transaction started.
+
+***** Indexes and snapshot isolation
+Indexes can point to all versions (snapshoted or not).
+CouchDB, Datomic, LMDB uses B-trees and append-only copy-on-write. Everything is
+mutable so no need for filtering. Transactions can only create a new tree roots.
+Requires a background process for garbage collection.
+
+***** Repeatable read and naming confusion
+Snapshot isolation is often called with different names. In Oracle called
+serializable. In PostgreSQL and MySQL called repeatable read. SQL standard is
+from 1975 and does not have a notion of snapshot isolation but it defines
+repeatable read. The SQL definition is flawed and big differencs exist between
+implementations and the guarantees they provide. In IBM DB 2 "repeatable read"
+means serializability.
+
+**** Preventing lost updates
+Can occur if two transactions do a read-modify-write cycle concurrently. The
+second write does not include the first modification. Ex: incrementing a counter
+or a balance, adding an element to a list within a JSON doc, two users editing
+at the same time. Various solutions.
+
+***** Atomic write operations
+Many DBs offer atomic write updates (such as UPDATE... WHERE... in SQL).
+MongoDB provides atomic update of documents, Redis of datastructures such as
+priority queues.
+ORM make it easy to accidentaly write code that performs unsafe
+read-modify-cycle instead of using atomic operations provided by the database.
+
+***** Explicit locking
+The application can explicitely lock objects. Good for complex updates but easy
+to introduce race conditions.
+
+***** Automatically detecting lost updates
+Alternative: transactions are executed in parallel but are forced to retry when
+a lost update is detected. MySQL / InnoDB does not detect lost updates.
+
+***** Compare-and-set
+Allow an update to occurs only if a value has not changed since last read.
+
+***** Conflict resolution and replication
+Locks and compare-and-et operations do not apply when replicas are involved. A
+common approach is to allow concurrent writes and to use application code or
+special datastructures to resolve and merge the versions after the fact. In Riak
+2.0 some datastructures allow commutative operations and the update can be
+automatically merged across replicas. Last write wins conflict resolution is
+prone to lost updates and often the default in many replicated databases.
+
+**** Write skew and phantoms
+
+***** Characterising write skew
+Not a dirty write or a lost update: two transactions updating two different
+objects. Special case of two transactions updating the same object: the problem
+can be either dirty write or lost update. The problem is solved with
+serializable isolation. If not possible, the second best solution is to lock the
+row, in SQL with a "FOR UPDATE" statement.
+
+***** More examples of write skew
+Exs: multiplayers game, 2 players moving to the same position ; claiming a
+username ; preventing double-spending.
+
+***** Phantom causing write skew
+All the examples follow the same pattern:
+1. a "select" checking some requirement
+2. a check on the result
+3. if it continues, a write occurs
+4. the write modifies the pre-condition of 1
+
+Can occur in different order (first write, then query).
+Phantom = a write in a transaction change the search query in another transaction.
+
+***** Materializing conflict
+With a phantom there is no object to attach a lock. We can create a table,
+materializing the objects to lock. When a transaction need to do a change, it
+acquires a lock on the table. Last resort as lock-mechanisms and application
+data are mixed together.
+
+** Serializability
+Isolation levels are hard to understand and inconsistenly implemented in
+different databases. Ex "repeatable read" has different meaning. Looking at
+application code, it's difficult to tell wether it's safe to run at a particular
+isolation level.
+- no good tools to detect race conditions
+The problem exists since the 70 and the answer from the researchers is: use
+serializable isolation => it prevents all race conditions
+
+Three ways to implement it:
+- literally execute transactions in a serial order
+- two-phase locking
+- optimistic concurrency such as snapshot isolation
+
+*** Actual serial execution
+Execute transactions on a single thread. Not performant in the past. Today the
+active set can fit in memory. OLTP queries are usually short with few reads and
+writes. Implemented in VoltDB, Redis, Datomic. Throughput limited to one CPU core.
+
+**** Encapsulating transactions in stored procedures
+With long running transactions or interactive style of transactions (over HTTP
+for example), disabling concurrency would bring a terrible throughput.
+Single-threaded serial transaction processing system allow store-procedures insteads.
+
+***** Pros and cons of stored procedures
+Each DB has its own language. Difficult to test, deploy, debug and integrate
+with metrics collection system for monitoring. Pro: fast and allow to
+encapsulate a transaction.
+
+***** Partitioning
+If the data can be partitioned so that each transaction can act only on one
+partition then each CPU core can work one partition, allowing a higher
+throughput. Cross-partitions transaction can exist but are slow. Max 1000/sec
+for VoltDB
+
+***** Summary of serial execution
+- Every transaction must be small and fast
+- Limited to where the active dataset fit in memory (otherwire disk access would
+  make everything slow)
+- Throughput slow enough for one single CPU core
+- cross-partitions transactions exist but with limitation
+
+*** Two-phase locking (2PL)
+Not related to 2-phase commit. 2PL used in the serializarble isolation level in
+MySQL, SQLServer and the read isolation level in DB2. Each object has a lock in
+a shared (for read txs) or exclusive mode (for write txs). There is an
+acquisition and a release phase. Deadlocks are automatically detected, aborded
+and retried.
+
+**** Performance of two-phase locking
+Performances significantly worst than weak isolation because of the reduced
+concurrency: higher latency and can be slow at high percentiles, if there is
+contention in the workload.
+
+***** Predicate locks
+
+A DB with serializable isolation must prevent phantoms. It's a lock that match
+some search condition, also for objects that do not exists yet. If 2PL includes
+predicate locks, its isolation becomes serializable.
+
+***** Index-range locks
+Predicate locks are not performant so many DBs implement 2PL with index-rnage
+locking. Not so precise but more performant.
+
+***** Serializable Snapshot Isolation (SSI)
+We have implementations of serializability that don't perform well (2PL) or
+don't scale (serial execution) or weak isolations levels that have good
+performances. A new algorithm, SSI, promises both for single-node DBs
+(PostgreSQL since 9.1) and distributed databases (FoundationDB).
+
+****** Pessimistic versus optimistic concurrency control
+
+2PL is a pessimistic concurrency mechanism. If anything might go wrong, better
+to wait until the situation is safe again. SSI is an optimistic concurrency
+control technique. When the tx wants to commit, the DBs checks if the isolation
+was violated and abort + retry. It works well if the contention between the txs
+is not too high.
+
+****** Decisision based on outdated premise
+
+The DB needs to detect if a query result used later for a write has changed:
+with MVCC or with detecting writes that affects a read.
+
+****** Detecting stale MVCC read
+Snapshot isolation usually implemented with MVCC. The transaction manager
+detects potential problems.
+
+****** Detecting writes taht affect prior read
+
+Second case to consider: when a transaction modifies the date after it has been read.
+
+****** Performance of serializable snapshot isolation
+"As always, many engineering details affect how well an algorith works in
+practice". Query latency is more predictable and less variable, no need to wait
+for locks! Read-only queries can run a consistent snapshot without requiring
+locks, very appealing for read-only heavy workloads.
+Read-write transactions must be fairly short, otherwise the risk of abording is
+high. However, it's less sensitive to slow transactions than 2PL or serial execution.
+
+** Summary
+Transactions allow an application to pretend that certain concurrency problems
+and certains kinds of hardware and software faults don't exist. Different
+isolation levels: read commited, snapshop isolation (repeatable read) and
+serializable. Exaples of race conditions:
+- dirty reads: a client reads another writes before they have been commited
+Prevented by read commited isolation.
+- dirty writes: one client overwrites data that another client has written but
+  not yet commited. Almost all transactions prevents it.
+- read skew (non repeatable reads). A client sees different parts of the DB at
+  different points in time. Prevented with snapshot isolation (often implemented
+  with MVCC)
+- lost updates: two clients performa a read-modify-write cycle. One overwrite
+  the other write. Sometimes automatically prevented, sometimes manually (SELECT
+  for UPDATE)
+- write skew: tx reads something, make a decision, writes. By the time it's
+  made, the premise is no longer true. Only serializable isolation prevents it.
+- phantom reads: a tx reads object that match some search condition. Another
+  client makes a write affecting the search. SSI prevents it but phantoms in the
+  context of write skews require special treatment, such as index-range locks.
+
+Weak isolation prevents some of these issues but not all. Only serializable
+isolation solves them. Three approaches:
+- literally executing transactions in a serial order
+- two-phase locking
+- serializable snapshot isolation (SSI)
+
+This chapter was mostly for a DB running on a single machine.
+
+* 8. The trouble with distributed systems
+
+** Faults and partial failures
+Deliberate choice when designing computers: if an internal fault occurs, we
+prefer to completely crash rather than returning a wrong result. Wrong results
+are difficult and confusing to deal with. In distributed system in contrary, we
+cna have partial failures. Partial failures are non-deterministics.
+
+*** Cloud computing and supercomputing
+High-performance computers with thousand of CPUs (scientific tasks, weather
+forecasting, moleculars dynamics) <--- spectrum ----> cloud computing:
+multi-tenant datacenters, commodity computers, elastic (on-demand resources
+allocation and metered billing). Super-computer deals with partial failures (a
+node fails) by letting it escalate to total failure.
+For Internet services:
+- making a service not available for a repair is not tolerable
+- cloud uses commodity hardware but can provide equivalent performance with
+  economy of scale at the cost of higher failure rates
+- the bigger a system is, the more likely some of its components will break
+- if the system can tolerate a failed node it helps operations, maintenance etc.
+- inter-DC communication go on the internet, slow
+On a supercomputer, nodes are closed from one another.
+Faults handling must be part of the software design. Unwise to assume faults are
+rare and hope for the best. Consider a wide range of faults and test them in a
+test environment.
+
+** Unreliable network
+Shared nothing systems are becoming the dominant way to build systems:
+information can only be exchanged through the network. With asynchronous packet
+network, if you send a message and don't receive an answer, it's impossible to
+say why. 
+
+*** Network faults in practice
+A study in a medium datacenter shows 12 network faults per month. Adding
+redundant networking gear don't protect against human error, a major cause of
+outages. ~Network fault~ is not ~network partition~ is not ~netsplit~. Handling errors does
+not mean tolerating them: if the networm is normally reliable, showing an error
+message during a network failure is a valid approach.
+
+*** Detecting faults
+In some specific circonstances it's possible to identify the fault. (a) if the
+machine is reachable but no port open => process down (note: firewall?) (b) if a
+node process crashes but the OS is running, a script can notify other nodes.
+HBase does this. (c) management interface of network switches can detect a link
+failure at the hardware level (d) if a router is sure an IP address can't be
+reached, will reply ICMP destination unreachable. "Even if TCP acknowledges that
+a packet was delivered, the application may have crashed befor handling it". If
+something has gone wrong you may get an error response at some level of the
+stack but in general you will get no response
+
+*** Timeouts and unbounded delays
+Long timeout: long wait to declare a node dead. Short timeout: detect faults
+faster but higher risk of incorrectly declaring a node dead. Declaring a node
+dead places additional on other nodes, potentially making the problem worst.
+Extreme case: all node declares other dead and everything stops working.
+Asynchronous network have unbound delays. Servers have no response time guarantees.
+
+**** Network congestion and queuing
+Variability of packet delays is most often due to queueing. On switches, in the
+OS, in a virtualized environment, tcp flow control. TCP timeout is calculated
+from observed round-trip times. Application does not see the packet loss and
+retransmission but it sees the delay.
+
+TCP vs UDP 
+
+UDP does not do flow control or retransmission, improving variability at the
+cost of reliability. UDP is a good choice when delayed data is useless.
+
+In environment such as EC2, you can choose a timeout only experimentaly: by
+measuring the distribution of network round-trip over an extended period.
+
+*** Synchronous versus asynchronous networks
+Telephone networks creates a circuit, and reserve space = bandwith, so there is
+no queuing, so the end-to-end latency is fixed: bounded delay.
+
+**** Can we not simply make network delay predictablex
+Datacenter / internet are optimized for bursty traffic. Sending a file the
+quickiest for ex, requesting a web page. No particular bandwith requirements.
+Using circuits for bursty data tranfers would waste resource. TCP adapts its
+rate dynamically. With careful QoS and rate-limiting of senders, it's possible
+to emulate circuits and provide statistically bounded delays.
+
+Latency and resource utilization
+
+Creating circuit allocates resources that may not be used so it's more expensive
+(reduced utilisation of the underlying resource). Dynamically shared bandwith
+(Internet) is cheaper at the cost of variable delays. Variable delays is a
+cost-benefit trade-off.
+
+** Unreliable clocks
+Variable network delays and imperfect clocks make it difficult to know the order
+of events.
+
+
+*** Monotonic versus time-of-day clocks
+**** Time-of-days clocks
+
+**** Monotonic clocks
+Always move forward. Suitable to measure a duration. NTP may adjust the frequency
+at which the monotonic clock moves forward = slewing the clock. Good resolution:
+can measure microseconds or less.
+
+*** Clock synchronisation and accuracy
+- Quartz clocks drift.
+- A computer clock too far away from the NTP value may refuse to synchronise.
+-  A node may be firewalled of NTP. NTP sync can only be as good as
+the network delay. Minimum error of 35ms over Internet. Up to 1s (spikes on the
+networks). Some
+- some system are not build for leap-seconds. Solution: smearing (performing the
+  leap seconds over the day, essentially a "lying" NTP server)
+- in VM, hardware clock is virtualized
+- on a device, you don't control, you cannot trust the clock. Ex: gamer setting
+  the clock to circumvent timing limitation in games
+
+For fast-frequency trading, clocks synchronized within 100 microseconds of UTC
+to debug problems. Also: GPS receiver, PTP protocol.
+
+*** Relying on synchronised clocks
+A problem on a clock can go unnoticed. Monitoring the clock drift is important.
+
+**** Timestamps for ordering events
+Last-write wins strategy can lost data. To preserve causality, version vectors,
+would be needed. Alternative: logical clocks.
+
+**** Clock readings have a confidence interval
+A machine's time-of-day clock can be read with a microsecond or nanosecond
+resolution but it does not mean the value has thi precision.
+With NTP over Internet, the best possible accuracy is probably tens of
+milliseconds. Many spikes to over 100ms when there are spikes. So thinking of a
+clock reading as a range with a confidence interval is more helpful. 
+If reading from NTP. Uncertainty: quartz drift since last sync + NTP's server
+uncertainty + network round-trip time.
+
+**** Synchronised clocks for global snapshots
+Creating monotonically increasing transaction ID across multiple nodes requires
+coordination and can become a bottleneck. Google Spanner uses timestamp as
+transactions IDs. Snapshot isolation is then implemented with the confidence
+interval of the timestamp. Clocks are synchronized with a GPS receiver or an
+atomic clock in each datacenter.
+
+*** Process pauses
+Possibles with GC, VMs, interruptions, swapping, context switch etc. The
+execution of the program is not in real-time => a threat can be preemted
+
+**** Response time guarantees
+Hard real-time customs: a deadline in the system for a response which is not met
+may cause a failure of the entire system. Real-time = designed to meet specific
+timing guarantees in all circumstances. Real-time operating systems (RTOS).
+Real-time system are less restrictive in their choice of technology and
+expensive. Mostly for safety-critical embedded devices.
+
+**** Limiting the impact of garbage collection
+Emerging idea: treat GC as a brief outage and redirect traffic before a GC occurs.
+
+** Knowledge, truth and lies
+
+*** The truth is defined by the majority
+Quoroum ("majority") are used to determine if a node is dead.
+
+**** The leader and the lock
+When a node is not a leader anymore, it should stop acting like one. Risks with
+stop-the-world GC, thread preemption etc.
+
+**** Fencing tokens
+Lock servers returns a fencing token, increased everytime a lock is granded. If
+Zookeeper is used a lock service, the transaction ID (zxid) or the node version
+(cversion) can be used as fencing tokens.
+
+**** Byzantine faults
+In this book we assume nodes are unreliable but honest. Otherwise a node could
+send a false fencing token for example.
+- Flight control systems must tolerate byzantine faults, CPU can get corrupted
+  with radiations
+- Systems with multiple participants
+A bug in a software could be regarded as a byzantine fault. For four nodes, you
+would need 4 different implementations and hope a bug appear only in one node.
+
+**** Weak form of lying
+We can assume nodes are honest but still protect against invalid messages due to
+hardware issues, software bugs, misconfiguration etc. Network packets do
+sometimes get corrupted.
+
+*** System model and reality
+
+Algorithm need to be written in a way that does not depend too heavily on the
+hardware or software configuration. We define a system model, an abstraction
+about what things an algorithm may assume regarding timing:
+- synchronous model: assumes bounded network delay, bounded process pauses and
+  bounded clock errors. Unrealistic.
+- partially synchronous model: behave like the synchronous model most of the
+  time. Realistic.
+- asynchronous model: no timing assumption are made, cannot even have a clock (=
+  no timeouts). Very restrictive.
+
+Regarding nodes failures, three common system models:
+- crash-stop faults: a node can fail only in one way by crashing. After a node
+  is gone, it never comes back
+- crash-recovery fault: may crash at any moment but response again at a later
+  point
+- byzantine: node may do anything, including tricking and deceiving. 
+
+Partially sync + crash recovery is the generally most useful for distributed
+systems algorithms. 
+
+**** Correctness of an algorithm
+
+Write down the properties. Correct if for some models they are always satisfied.
+Hard to prove with unbounded delays or if all nodes crash.
+
+**** Safety and liveness
+Safety: "nothing bad happens". Liveness: "something good eventually happen". If
+a safety property is violated, we can say when and the damage cannot be undone.
+Liveness: may not hold at some point in time but may be satisfied in the future.
+
+**** Mapping system models to the reald world
+Quorum algorithms rely on a node remembering the data it claims to have stored.
+Theoretical abstract system models are still very useful for distilling down the
+complexity to a manageable set of faults that we can reason about.
+
+** Summary
+Problems: 
+- packets can be lost or arbitrarly delayed. Same for the replies
+- node's clock can be out of sync, jump forward or backward
+- a process may pause for a substantial amount of time at any point in its
+  execution declared dead and come back to life later
+~Partial failures~ is the defining characteristic of distributed systems. We try
+to build tolerance over partial failures. To tolerate faults we must detect
+them. Degraded states can happen and be more difficult to deal with.
+
+* 9. Consistency and Consensus
+Fault-tolerant systems are built on abstractions. One of the most
+important abstraction is consensus.
+** Consistency guarantees
+*** Eventual consistency
+After some unspecified time, all read request
+return the same values. It could be called convergence: all replicas
+converge to the same value. It is a weak guarantee: until the
+convergence, reads could return anything or nothing, a read after a
+write could see a different value.
+
+Stronger consistencies have a cost (in speed or availability).
+** Linearizability
+Aka: atomic consistency, strong consistency, immediate consistency or external consistency.
+
+As soon as a write is successful, all clients reading must see the value written.
+
+It is a ~recency guarantee~.
+
+After a read client returns the new value, all subsequent reads must return the new value.
+
+To not be confused with serializability, which is a property of
+transactions where every transaction may read and write multiple
+objects.
+
+Linearizability is a recency guarantee on the reads and writes of a
+~register~.
+*** Relying on linearizability
+What for? For locking and leader election.
+
+Coordination services like Zookeeper and etcd are used for distributed locks and leader election.
+A linearizable storage service is the the basic foundation for such services.
+
+Linearizability is needed to give uniqueness guarantee, such as creating a file at the same time.
+
+
+*** Implementing Linearizable Systems
+Replications systems:
+- single-leader replication => potential linearizable
+
+- consensus algorithms => linearizable
+
+- multi-leader replication => not linearizable
+
+- leaderless replication => probably not linearizable
+
+Type of systems: Dynamo-style. "Last write wins": almost certainly not
+linearizable because of clock skew.
+
+*** Cost of linearizability
+CAP theorem critics. It is too restricted: talks only about network failure and linearizability.
+More modern results exists that express more precisely limitations in distributed systems.
+
+**** Linearizability and network delays
+Linearization is slow. Often dropped to increase performance, not for fault-tolerance.
+
+** Ordering guarantees
+A linearizable register behaves as if there is only one copy of the
+data where operations appears to take effect atomically.
+
+*** Ordering and causality
+Ordering is important because it preserves causality.
+
+**** Causal order is not a total order
+
+**** Linearizability is stronger than causal consistency
+- Linearizability implies causality (but has a performance cost)
+- Causality can be achieved without linearization (CAP theorem does not apply here)
+- Causal consistency is the strongest possible consistency model that
+  does not slow down due to network delays
+- Research is being done to develop databases that preserve causality
+  with the performance and availability of eventually consistent
+  systems
+
+**** Capturing causality
+The database can track of which client read what, then when a write
+happens it knows on which data it is based. When the read data
+accumulate, it can become impractical.
+*** Sequence number ordering
+Can be used to capture causality. A number is incremented by a leader.
+**** Noncausal sequence number generators.
+In a multi-leader setup, each node can generate a sequence from a
+block it get assigned to. Or if the timestamp resolution is good
+enough, it can be sufficient to order operations. Or one node can
+process odd numbers and the other even numbers.
+
+All these methods above are inconsistent with causality.
+**** Lamport timestamps
+A tuple (counter, node id). The client send the max seen id, allowing
+node to update their max. Ensures a total ordering.
+**** Timestamp ordering is not sufficient
+The total order emerges only after collecting all the operations.
+Not enough for a uniqueness constraint.
+
+For example, cannot detect immediately if two users create the same
+username account concurrently: one cannot access the lamport
+timestamps from other transactions.
+*** Total order broadcast
+Singe-leader replication determines a total order on one node, the
+leader node. The leader node can become the bottleneck. Aka atomic
+broadcast.
+
+Total order broadcast requires two safety properties to be always satisfied:
+- Reliable delivery
+No messages are lost: if a message is delivered to a node, it is delivered to every node
+- Total order delivery
+Messages are delivered to every node in the same order.
+
+**** Using total order broadcast
+
+Zookeeper and etcd implement total order broadcast. Perfect for
+database replication: a message can be a write and every replicate can
+process the writes in the same order. Can be used for implementing
+serializable transactions. Can be used to implement a lock service
+with fencing tokens.
+
+**** Implementing linearizable storage using total order broadcast
+Total order broadcast is asynchronous: messages are guaranteed to be
+delivered reliably in a fix order. Linearizability is a recency
+guarantee: a read is guarantee to see the last value written.
+
+Can be achieve with an append-only log.
+
+**** Implementing total order broadcast from a linearizable storage
+Possible with register and a increment-and-get operation or a compare-and-set operation.
+
+It can be proved that a linearizable compare-and-set (or
+increment-and-get) register and total order broadcast are equivalent
+to consensus.
+
+** Distributed transaction and consensus
+
+Get nodes to agree on something. Difficult.
+Useful for: leader election, atomic commit.
+
+Consensus is not solvable in the asynchronous system model ("FLP result"), a model
+without clock and timeout.
+
+Two-phase commit (2PC) is a consensus algorithm, but not a good one.
+
+*** Atomic commit and two-phase Commit (2PC)
+
+With atomicity thee outcome of a transaction is either a success or an
+abort. Specially important for multi-object transaction.
+
+**** From single-node to distributed atomic commit
+
+In a distributed system, a node must commit only when it knows that all other nodes would do the same.
+
+**** Introduction to two-phase commit
+
+Algorithm to achieve atomic transaction commit accross multiple nodes.
+Available, for exapmle, in the Java Transaction API.
+
+2PC use a coordinator (or transaction manager). Often implemented in
+the same application process that is requesting the transaction.
+
+Coordinator sends a ~prepare~ request to the particitants in phase 1.
+If they replies "yes", indicating they are ready to commit, the
+coordinator sends a commit request in phase 2 and the commit takes
+place. If they replies "no", the coordinator sends an abort request in
+phase 2.
+
+**** A system of promises
+
+Once a "yes" has been replied, the participant will commit the
+transaction. If it crashes, it will commit the transaction after the
+recovery.
+
+**** Coordinator failure
+
+Particiants that have send a "yes" but not receive a commit request
+(coordinator crashed) must wait for the recovery of the coordinator.
+They are in a ~doubt~ or ~uncertain~ state.
+
+**** Three-phase commit
+
+2PC can be come stucked waiting for the coordinator to recover. 3PC
+has exists but assume a network with bounded delay and nodes with
+bounded response times. In most systems, it cannot guarantee atomicity.
+
+Nonblocking atomic commit requires a perfect failure detector: detects
+if a node crashed or not. A timeout is not a reliable detector in a
+network with unbounded delays, thus 2PC continues to be used.
+
+*** Distributed transactions in practice
+
+Can suffer from performance problem: much because of the disk forcing required
+for crash-recovery. Database-internal distributed transactions: can work well.
+Transaction spanning heterogenous technologies: more challenging.
+
+**** Exactly-once messaging processing
+
+Example: a combination of message queue and a database. If either the
+message delivery of the db transaction fails, both are aborted.
+
+**** XA transactions
+Implemented in a library, embedded in the client.
+
+**** Holding locks while in doubt
+Causes a problem because the database has some locks on the data for the transaction.
+If coordinator crashes for 20mn, then the locks are there for 20mn.
+
+**** Recovering from coordinator failure
+In theory if the coordinator crashes it must restart and clean
+recover. In practice it may be impossible (corrupted log). It can only
+be fixed by an administrator. Escape hatch: heuristic decisions, i.e.
+probably breaking atomicity.
+
+**** Limitations of distributed transactions
+XA transactions allow different participant data systems to be
+consistent. The key realisation is that the transaction coordinator is
+itself a kind of database. It can become a single point of failure.
+Lot of coordinator are not replicated.
+
+Application servers that have a coordinator are not stateless anymore.
+
+For 2PC to work, all participants must response, otherwise the
+transaction will fail. Distributed transactions have a tendencies of
+amplifying failures.
+
+There are alternative methods that are less painful.
+
+*** Fault-tolerant consensus
+The following properties must be satisified for a consensus algorithm:
+
+- uniform agreement: no two nodes decide differently [safety]
+- integrity: no node decides twice [safety]
+- validity: if a node decide v, then v was proposed by some node [safety]
+- termination: every node that does not crash eventually decides some value [liveness]
+
+**** Consens algorithms and total order broadcast
+Best-know algorithms: Viewstamped replication (VSR), Paxos, Raft and Zab.
+
+Total order broadcast is equivalent to repeated rounds of consensus.
+Sometimes implemented directly (VSR, Raft, Zab), sometimes not
+(Multi-Paxos).
+
+**** Single-leader replication and consensus
+
+**** Epoch numbering and consensus
+The protocols define an epoch number and guarantees that within each
+epoch, the leader is unique. When a conflict between two leaders of
+two different epoch occurs, the higher epoch wins.
+
+Two rounds of voting: one to choose a leader and one to vote on a leader proposal.
+
+**** Limitation of consensus
+Consens algorithm assumes a fixed set of nodes, it's not possible to
+just add or remove nodes. Dynamic membership extensions allow the set
+to change over time. In environments with highly variable network
+delays, a node can falsely believes that the leader have failed due to
+a transient network issue. Reelecting too often can lead to
+performance problems.
+
+*** Membership and coordination services
+Zookeeper offers the following services on top of total order broadcast:
+- linearizable atomic operations
+- total ordering of operations
+- failure detection
+- change notifications
+
+Performing majority votes on a huge number of nodes may be slow,
+Zookeeper can externalize the burden of it and be installed on a small
+numbers of nodes (3 to 5).
+
+**** Allocating work to nodes
+
+**** Service discovery
+
+**** Membership services
+
+** Summary
+Goal of linearizability: make replicated data as though they were a
+single copy. Causality: imposes an ordering on events. Not enough for
+certains problems.
+
+Consensus: nodes agree on something and the
+decision is irrevocable.
+
+The following problems can be reduced to consensus:
+- linearizable compare-and-set registers
+- atomic transaction commit
+- total order broacast
+- locks and leases
+- membership/coordination service
+- uniqueness constraint
+
+* 10. Batch processing
+** Unix Philosophy
+Small programs that do one thing well and can be combined. Interface between the
+program is arbitrary text, requires a lot of parsing. Inputs and outputs are
+immutable, no side-effects. Easier to debug. Each step can be examined and
+stored for debugging. Input/output wiring and the program logic are seperated,
+this ease composition.
+
+** MapReduce with distributed systems
+
+Also separate I/O from the calculation. Can join data on the mapper side or on
+the reducer side. Parsing is made easier by enforcing an input format, such as
+Avro. Can be used to process data that do not fit entirely on memory or on the
+disk of a machine. Fault-tolerant: failed tasks are retried. Important in some
+cluster environments where a low-priority task can be interrupted to free
+resources for more higher-priorities tasks. Apache Hadoop implements MapReduce
+and uses HDFS as a distributed filesystem.
+
+Can run arbitrary code (any libraries etc) in the callbacks, thus very
+powerfull, unlike MPP databases.
+
+** Beyond MapReduce
+
+MapReduce is "simple in the sense of being able to understand what it is doing,
+not in the sense of being easy to use". Using the MapReduce API can be
+challenging so various higher-level programming models exists on top of it: Pig,
+Hive, Cascading, Crunch. For some jobs, other tools can also be faster.
+
+
+*** Materialization of intermediate state
+
+Connecting jobs must be done explicitely by reading the output from a job, once
+a job has completed. These intermediate states rae problematic: must be waited
+for, mapper are redundant (plumbing between a reducer and a mapper could be
+automatic if the keys are correct), stored in the distributed filesystem so
+replicated (overkill for most of the jobs).
+
+**** Dataflow engines
+
+Answers to these problems: Spark, Tez and Flink. Handles an entire workflow as
+one job. More flexible as they do not need to alternate between map and reduce
+roles but use the more generic concept of "operators". Do not require a sort
+between every map and reduce, no unnecessary map tasks, joins are explicit
+making locality optimizations possible etc.
+
+*** Graphs and Iterative Processing
+
+Useful if the graph being worked on is bigger than one a machine can handle.
+Requires lot of communication on the network.
+
+*** High-Level APIs and Languages
+
+Hive, Pig, Cascading, Tez, Spark and Flink high-level dataflow APIs. Often
+interactive and iterative.
+
+** Summary
+
+Two problems that batch processing frameworks solve: partitioning and fault
+tolerance.
+
+The output for a given batch processing job depends on the inputs and the input
+is bounded (has a known fixed size).
