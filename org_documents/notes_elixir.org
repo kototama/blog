@@ -1,5 +1,6 @@
 #+TITLE: Notes on Elixir
 #+TAGS: elixir
+#+CATEGORY: note
 
 * Debugging
 ** Profiling all modules

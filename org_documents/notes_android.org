@@ -1,5 +1,6 @@
 #+TITLE: Notes on Android
 #+TAG: android
+#+CATEGORY: note
 
 * Install TWRP
 

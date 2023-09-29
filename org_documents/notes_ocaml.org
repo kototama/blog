@@ -1,5 +1,6 @@
 #+TITLE: Notes on OCaml
 #+TAGS: ocaml
+#+CATEGORY: note
 
 * Ocaml, the language
 ** Reexport a type and derives it

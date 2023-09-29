@@ -1,5 +1,6 @@
 #+TITLE: Notes on Nix
 #+CATEGORY: note
+#+TAGS: nix
  
 * Concepts
 ** override versus overrideAttrs
