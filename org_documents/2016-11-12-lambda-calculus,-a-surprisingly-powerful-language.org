@@ -1,4 +1,4 @@
-#+TITLE: Lambda calculus, a suprisingly powerful language
+#+TITLE: Lambda calculus, a surprisingly powerful language
 #+DATE: 2016-11-12
 #+TAGS: cs-theory
 
