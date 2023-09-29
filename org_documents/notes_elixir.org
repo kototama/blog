@@ -1,0 +1,97 @@
+#+TITLE: Notes on Elixir
+#+TAGS: elixir
+
+* Debugging
+** Profiling all modules
+
+#+BEGIN_SRC elixir
+:eprof.start_profiling(:erlang.processes())
+:eprof.stop_profiling()
+:eprof.analyze(:total)
+
+#+END_SRC
+
+** Queues
+#+begin_src elixir
+  :recon.proc_count(:message_queue_len, 5)
+  :erlang:process_info(Pid,message_queue_len).
+
+  :recon.info(self(), :message_queue_len)
+
+#+end_src
+
+** Memory
+#+begin_src elixir
+  :recon.proc_count(:memory, 5)
+
+#+end_src
+
+* Ecto
+** Create a migration
+
+~mix ecto.gen.migration create_counter~
+
+** Finding current execution stack of a process
+
+~Process.info(pid, :current_stacktrace)~
+
+** Tracing a module
+
+~recon_trace:calls({:_, :_, :_}, 20, [{:pid, server}])~
+
+** Tracing a module to a file
+
+#+BEGIN_SRC elixir
+bin/app rpc 'fd = File.open!("/tmp/tracing.log", [:write]);
+:recon_trace.calls({:application_name, :_, :return_trace}, 1000,
+io_server: fd); spawn(fn -> Application.start(:ssl) end);
+Process.sleep(10*1000); File.close(fd)'
+#+END_SRC
+
+[[https://stackoverflow.com/questions/1954894/using-trace-and-dbg-in-erlang/1954980#1954980][Source]]
+
+** Tracing with dbg
+
+#+BEGIN_SRC erlang
+
+# :dbg.tracer(:process, {fn {_, 100} -> :dbg.stop_clear; {msg, n} ->:io.format('~p~n', [msg]); n+1 end, 0})
+
+:dbg.tracer()
+:dbg.p(:all, :c)
+:dbg.tpl(:inet_gethost_native, :_, [])
+:dbg.stop_clear()
+
+#+END_SRC
+
+Then look for output with `journalctl -u <service>`.
+
+[[https://stackoverflow.com/questions/1954894/using-trace-and-dbg-in-erlang][Source]]
+
+** Dump messages on disk
+#+BEGIN_SRC elixir
+defmodule Msgs do
+  def write do
+    fd = File.open!("/tmp/messages", [:write])    messages =
+      Process.info(self(), :messages)
+      |> elem(1)
+      |> Enum.take(1000)    IO.write(fd, messages |> Enum.map(&inspect/1) |> Enum.join("\n"))    File.close(fd)
+  end
+endMsgs.write()
+
+#+END_SRC
+** Profiling a module
+#+BEGIN_SRC elixir
+iex(7)> :eprof.start_profiling([logger])
+:profiling
+iex(8)> Logger.warn("hello, world!")
+iex(8)> require Logger
+Logger
+iex(9)> Logger.warn("hello, world!")
+2020-04-28 11:24:42.605 pid=<0.2771.0> [warn] : hello, world!
+:ok
+iex(10)> :eprof.stop_profiling()
+:profiling_stopped
+iex(11)> :eprof.analyze()
+
+
+#+END_SRC
