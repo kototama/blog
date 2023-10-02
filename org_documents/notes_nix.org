@@ -18,7 +18,8 @@ stdenv.mkDerivation { # This part gets overriden by overrideAttrs
 }
 #+END_SRC
 
-So, to change the version of the package, you'd do example.overrideAttrs (_: { version = "0.0.2"; }) and to replace baz with some customBaz, you'd do example.override { baz = customBaz; }
+So, to change the version of the package, you'd do example.overrideAttrs ~(_: {version = "0.0.2"; })~ and to replace baz with some customBaz, you'd do
+~example.override { baz = customBaz; }~
 
 From: https://www.reddit.com/r/NixOS/comments/cn6nt4/how_is_overrideattrs_different_from_override/
 
@@ -112,19 +113,19 @@ mkShell {
 
 ** Flake overwrite inputs
 
---override-input inputname path:/home/.......
+~--override-input inputname path:/home/.......~
 
 ** nix-shell with a specific python package
 
-nix-shell -p 'python3.withPackages (ps: with ps; [ secretstorage ])'
+~nix-shell -p 'python3.withPackages (ps: with ps; [ secretstorage ])'~
 
 ** distrobox
 
 Giving access to the host UI:
 
-```
+#+BEGIN_SRC bash
 xhost +si:localuser:$USER
-```
+#+END_SRC
 
 [[https://github.com/NixOS/nixpkgs/issues/208817#issuecomment-1374742894][Source]]
 
@@ -147,13 +148,6 @@ in
 ** Update without breaking anything with sudo
 
 nixos-rebuild switch --use-remote-sudo
-
-** Debug flake and home-manager
-
-```
-flake = builtins.getFlake (toString ./.)
-:p flake.nixosConfigurations.sonnfel.config.home-manager.users.neosimsim.home.sessionVariables
-```
 
 ** Run non-nixos software
 
@@ -180,7 +174,7 @@ in ~https://github.com/NixOS/nixpkgs/commit/1ffba9f2f68~
 
 ** Find the location of a function with nix-repl
 
-```
+#+BEGIN_SRC nix
 λ nix repl
 Welcome to Nix version 2.3.5. Type :? for help.
 
@@ -188,17 +182,17 @@ nix-repl> pkgs = import <nixpkgs> {}
 
 nix-repl> pkgs.callPackage
 «lambda @ /nix/store/5m1ndnbivpsln3lcgyrqn229vmc964na-nixpkgs-21.03pre255633.c00959877fb/nixpkgs/lib/customisation.nix:117:31»
-
-```
+#+END_SRC
 
 Alternative: starts with `nix repl '<nixpkgs>'`
 
 ** Pass a channel to nix-shell
-   nix-shell -I nixpkgs=/nix/var/nix/profiles/per-user/user/channels/nixos-21.11 -p vlc
+
+~nix-shell -I nixpkgs=/nix/var/nix/profiles/per-user/user/channels/nixos-21.11 -p vlc~
 
 ** By pass the nix cache with a local repo
 
---override-input attr path:...
+~--override-input attr path:...~
 
 ** Example of a reproducible module for a website
 
