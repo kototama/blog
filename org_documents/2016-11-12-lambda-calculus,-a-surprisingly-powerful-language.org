@@ -27,23 +27,22 @@ abstraction. There is nothing more. There are no booleans, numbers,
 strings, conditional statements etc. Functions accept only one
 argument. Yet, everything can be computed with the lambda calculus.
 
-A variable ~x~ is /bound/ if it occurs in the abstraction of the body
-~t~ of an abstraction ~λx.t~. It is is /free/ if it appears if it is
-not bound by an enclosing abstraction on ~x~. For example in ~(λx.x)
-x~ the first ~x~ is bound, the second one is free. A term with no free
-variables is called a /combinator/. [1]
+A variable ~x~ is /bound/ if it occurs in the abstraction of the body ~t~ of an
+abstraction ~λx.t~. It is is /free/ if it appears if it is not bound by an
+enclosing abstraction on ~x~. For example in ~(λx.x) x~ the first ~x~ is bound,
+the second one is free. A term with no free variables is called a /combinator/.
+[1]
 
 The simplest combinator is the identity function. It returns its
 argument unchanged:
 
 ~id = λx. x~
 
-There are different strategies when choosing on how arguments are
-evaluated before applying them to functions. That is, there are
-different strategies to /reduce/ the terms. The most common one is
-/call-by-value/. Under this strategy a function can be applied only
-when its right-hand side has been reduce to a /value/. A value is a
-term that cannot be further reduced.
+There are different strategies when choosing on how arguments are evaluated
+before applying them to functions. That is, there are different strategies to
+/reduce/ the terms. The most common one is /call-by-value/. Under this strategy
+a function can be applied only when its right-hand side has been reduce to a
+/value/. A value is a term that cannot be further reduced.
 
 Thus ~(λx.x x) (λx.x) y~ reduces to ~(λx.x) (λx.x) y~ in the first
 evaluation step then to ~(λx.x) y~ then to ~y~. Functions with
@@ -72,10 +71,8 @@ The /test/ combinator can be defined like this:
 
 ~test = λl. λm. λn. l m n~
 
-If the first argument of /test/ is ~tru~ the expression will reduce to
-~m~, if it is ~fls~ it will reduce to ~n~. For example ~test tru x
-y~ evaluates to ~tru x y~ which evaluates to ~x~. Awesome, it is
-almost like a /if/ statement!
+If the first argument of /test/ is ~tru~ the expression will reduce to ~m~, if
+it is ~fls~ it will reduce to ~n~. For example ~test tru x y~ evaluates to ~tru x y~ which evaluates to ~x~. Awesome, it is almost like a /if/ statement!
 
 Numbers can be encoded too. The /Church numerals/ [2] are defined like
 this:
