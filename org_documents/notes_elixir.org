@@ -3,34 +3,19 @@
 #+CATEGORY: note
 
 * Debugging
-** Profiling all modules
 
-#+BEGIN_SRC elixir
-:eprof.start_profiling(:erlang.processes())
-:eprof.stop_profiling()
-:eprof.analyze(:total)
-
-#+END_SRC
-
-** Queues
+** Inspecting queues
 #+begin_src elixir
   :recon.proc_count(:message_queue_len, 5)
   :erlang:process_info(Pid,message_queue_len).
-
   :recon.info(self(), :message_queue_len)
-
 #+end_src
 
-** Memory
+** Inspecting memory
 #+begin_src elixir
   :recon.proc_count(:memory, 5)
 
 #+end_src
-
-* Ecto
-** Create a migration
-
-~mix ecto.gen.migration create_counter~
 
 ** Finding current execution stack of a process
 
@@ -96,3 +81,17 @@ iex(11)> :eprof.analyze()
 
 
 #+END_SRC
+
+** Profiling all modules
+
+#+BEGIN_SRC elixir
+:eprof.start_profiling(:erlang.processes())
+:eprof.stop_profiling()
+:eprof.analyze(:total)
+
+#+END_SRC
+
+* Ecto
+** Create a migration
+
+~mix ecto.gen.migration create_counter~
