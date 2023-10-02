@@ -1,9 +1,11 @@
 body {
     font-size:16px;
-    padding-top: 2.5em;
+    margin-top: 2.5em;
     margin: auto;
     background-color: #373434;
-    width: 800px;
+    max-width: 800px;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
     box-sizing: border-box;
     margin: auto;
     word-wrap: break-word;
@@ -14,11 +16,11 @@ body {
     padding-top: inherit;
 }
 
-h1 {
+h2 {
     color: #26a49a;
 }
 
-h2,h3 {
+h3 {
     color: #6ccc96;
 }
 
@@ -29,6 +31,7 @@ h4,h5,h6 {
 div {
     color: #e1e1e1;
     padding: 10px;
+    line-height: 1.4rem;
 }
 
 a {
@@ -68,4 +71,5 @@ nav {
     display: flex;
     gap: 1em;
     float: right;
+    margin-top:0.25rem;
 }
