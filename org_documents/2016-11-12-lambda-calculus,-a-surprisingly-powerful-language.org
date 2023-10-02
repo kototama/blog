@@ -1,6 +1,6 @@
 #+TITLE: Lambda calculus, a surprisingly powerful language
 #+DATE: 2016-11-12
-#+TAGS: cs-theory
+#+TAGS: cs-theory books
 
 I'm reading the book [[https://www.cis.upenn.edu/~bcpierce/tapl][Types and Programming Languages]] from Benjamin C.
 Pierce from time to time at the moment. The chapter explaining the

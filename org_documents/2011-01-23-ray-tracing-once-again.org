@@ -1,6 +1,6 @@
 #+TITLE: Ray tracing, once again
 #+DATE: 2011-01-23
-#+TAGS: clojure
+#+TAGS: clojure books
 
 There are already several implementations of simple raytracers in
 Clojure on the Web but I couldn't resist implementing one for myself! It
