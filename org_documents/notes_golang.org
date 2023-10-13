@@ -130,14 +130,6 @@ written in Go (syncthing, tailscale, prometheus/grafana, cockroachdb, HashiCorp
 etc). So, even if we assume that "Go is bad", then at least Go + the Go
 ecosystem + the Go runtime must be good!
 
-At some point it was announced that generics would be introduced in Go and I
-then started to take the language more seriously. If the main pain points was
-going away, it showed something was done right. What really forced me to change
-my originally negative opinion about Go is that lot of very good software are
-written in Go (syncthing, tailscale, prometheus/grafana, cockroachdb, HashiCorp
-software etc). So even if we assume that "Go is bad", then at least Go + the Go
-ecosystem + the Go runtime must be good!
-
 Someone might argue that in a popular language, there will always be good
 software written in that language, simply because of the quantity of software
 produced, but in the field I'm currently interested in (command-line tools, servers and
