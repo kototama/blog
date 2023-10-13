@@ -125,10 +125,10 @@ flaws.
 At some point, it was announced that generics would be introduced in Go and I
 started to take the language more seriously. If the most painful point
 disappeared, it showed something was done right. What really forced me to change
-my negative opinion of Go was that a lot of very good software is written
-written in Go (syncthing, tailscale, prometheus/grafana, cockroachdb, HashiCorp
-etc). So, even if we assume that "Go is bad", then at least Go + the Go
-ecosystem + the Go runtime must be good!
+my negative opinion of Go was that a lot of very good software is written in Go
+(syncthing, tailscale, prometheus/grafana, cockroachdb, HashiCorp etc). So, even
+if we assume that "Go is bad", then at least Go + the Go ecosystem + the Go
+runtime must be good!
 
 Someone might argue that in a popular language, there will always be good
 software written in that language, simply because of the quantity of software
