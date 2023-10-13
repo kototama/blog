@@ -34,7 +34,7 @@ in practice.
 ** Is Go a replacement of C?
 
 C has been and is used for embedded systems, operating system kernels,
-command-line utilities and serversSome of these programs cannot have a garbage
+command-line utilities and servers. Some of these programs cannot have a garbage
 collector for practical reasons (performance). In this sense, Go can't really
 replace C, despite its fast garbage collection.
 
@@ -48,9 +48,9 @@ systems and cloud infrastructures.
 
 
 I think the language is mostly easy because it's familiar. Some aspects of the
-of the language are not simple at all. I'm referring here to the definition of
-"simple" and "easy" given by Rich Hickey in his talk "Simple made easy". It's
-mainly mainly because of the mutability that is ubiquitous in language. See, for
+language are not simple at all. I'm referring here to the definition of "simple"
+and "easy" given by Rich Hickey in his talk "Simple made easy". It's mainly
+mainly because of the mutability that is ubiquitous in language. See, for
 example https://www.uber.com/en-DE/blog/data-race-patterns-in-go/
 
 The subject here requires further analysis: channels are simple, but their
@@ -72,9 +72,9 @@ different.
 
 The reason these languages are compared is that they are both an answer to C++.
 Their respective responses are different, but some overlap. For example, both
-can be used be used to write servers and command-line tools. They are also
-naturally compared because they are so widely used (you don't see many
-comparisons between OCaml and Go, for example).
+can be used to write servers and command-line tools. They are also naturally
+compared because they are so widely used (you don't see many comparisons between
+OCaml and Go, for example).
 
 * Go is bad?
 
@@ -90,10 +90,10 @@ were/are :
 
 a) corrected since March 2022.
 
-b) the language allows nil pointers and has no enum/sum types (see
+b) the language allows null pointers and has no enum/sum types (see
 https://viralinstruction.com/posts/uniontypes/ for a definition) where the
 compiler checks branch completeness when matching and switching on the command
-line. (unlike Rust, OCaml or Haskell). I don't know why the designers didn't do
+line (unlike Rust, OCaml or Haskell). I don't know why the designers didn't do
 this. Maybe they weren't exposed to the ML family of programming languages. It
 seems that the null pointer problem is less frequent than in C or C++, since
 they are used in fewer contexts.
