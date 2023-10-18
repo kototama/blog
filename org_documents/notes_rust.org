@@ -1,0 +1,64 @@
+#+TITLE: Notes on Rust
+#+CATEGORY: note
+
+
+* Citations
+- "Rust is all about transferring the pain of understanding your program from the future to the present"
+  -- Programming Rust, 2nd Edition, O'Reilly
+
+* Borrow checker
+** Mutable access is exclusive access
+
+This does not work:
+
+#+begin_src rust
+fn show_a(a: &mut u32) {
+    println!("a {}", a);
+}
+
+fn show_a2(a: &u32) {
+    println!("a {}", a);
+}
+
+fn main() {
+    let mut a = 42;
+    let b = &a;
+
+    show_a(&mut a);
+    show_a2(b);
+}
+#+end_src
+
+Same example here but without function calls, it's exactly the same principle:
+
+#+begin_src rust
+fn main() {
+    let mut a = 42;
+    let b = &a;
+
+    assert_eq!(*(&mut a), 42); // fails with cannot borrow `a` as mutable because it is also borrowed as immutable
+    assert_eq!(*b, 42);
+}
+#+end_src
+
+This works:
+
+#+begin_src rust
+fn show_a(a: &mut u32) {
+    println!("a {}", a);
+}
+
+fn show_a2(a: &u32) {
+    println!("a {}", a);
+}
+
+fn main() {
+    let mut a = 42;
+    let b = &a;
+
+    show_a2(b);
+    show_a(&mut a);
+}
+#+end_src
+
+because the lifetime of ~b~ ends before the lifetime of the mutable reference ~&mut a~.
