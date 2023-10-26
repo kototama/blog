@@ -42,7 +42,21 @@ You can re-export the type definition and add a deriving annotation. For instanc
 ** Calling stdlib when Base/Core is used
 =Stdlib.float_of_int= for example
 
-* Nix
+* With Nix
 ** nixpkgs + ocaml
 
 ~λ nix shell nixpkgs#ocaml-ng.ocamlPackages_5_0.ocaml_~
+
+* Advantages
+- strong type safety
+- very expressive
+- practical and pragmatic
+- not too complicated or too broad in scope
+- can compiles to bytecode or native
+- has multiple compilers to JavaScript (community work)
+- runtime is simple allowing broad usages: exokernel (mirageOS), wasm, JS etc.
+* Disadvantages
+- few libraries
+- the standard library is weak and there are two alternatives (batteries or
+  Base/Core). This split the ecosystem even further
+- Async code: Lwt or Async, and now with OCaml 5: EIO.
