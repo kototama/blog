@@ -1,7 +1,6 @@
 #+TITLE: Notes on Rust
 #+CATEGORY: note
 
-
 * Citations
 - "Rust is all about transferring the pain of understanding your program from the future to the present"
   -- Programming Rust, 2nd Edition, O'Reilly
@@ -62,3 +61,40 @@ fn main() {
 #+end_src
 
 because the lifetime of ~b~ ends before the lifetime of the mutable reference ~&mut a~.
+*
+
+* Notes on the features
+** Structs
+Private field are accessible in the module where the struct is declared (unlike
+C++/Java).
+** Constants and static
+Constants are for magic numbers, fixed strings etc. Static declares a variable
+that is set up at the start of the program and until it exits. Mutable static
+are not thread-safe (nothing enforced here with the borrow checker).
+** Declaring a library
+If there is a ~src/lib.rs~ file, Cargo will build a library, and it forms the root module of it
+** Building a binary with a lib
+If there is a ~/src/bin/something.rs~ folder, Cargo will build a binary. Run it with ~cargo run --bin something~.
+Or if the binary has multiple source files in a create, have the files ~src/bin/something/{main.rs, part1.rs, part2.rs}~.
+** Tests
+Either along the implementation with a test directive or when the tests are too
+big they can be put in a separate module named `tests`. Integration tests can
+put in a ~tests~ folder at the level than the ~src~ directory.
+
+* Pros
+** Safe
+** Fast
+** Close to the machine but allow high-level constructs
+For example various data collections and operations on them.
+** How to evolve the language was taken in consideration
+- The default prelude is versioned. The equivalent of doing ~use std::prelude::v1::*~ is done everytime
+- Notion of a language "edition". Different creates can be compiled with
+  different editions, allowing both future evolution and still backward
+  compatibility (Cargo takes care of compiling with the correct edition)
+
+* Cons
+** Large language and keeps growing
+Example: at least three different ways to define a module.
+** Syntax relatively ugly
+
+When it mixes the following characters: &, ', <, >, ?, :: and ; together...
