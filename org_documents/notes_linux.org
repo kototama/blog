@@ -1,0 +1,23 @@
+#+TITLE: Notes on Linux
+#+TAGS: linux
+#+CATEGORY: note
+
+* Tips
+
+** Increase scrollbar size in Firefox
+
+#+begin_src
+
+about:config
+
+# for the scrollbar width
+
+widget.non-native-theme.scrollbar.size.override 30
+
+# for the scrollbar shape
+
+widget.non-native-theme.scrollbar.style 4
+
+#+end_src
+
+[[https://web.archive.org/web/20230928181116/https://old.reddit.com/r/firefox/comments/ujo1xy/how_to_increase_firefox_100_scrollbar_width/][Source]]
