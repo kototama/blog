@@ -1,10 +1,6 @@
 #+TITLE: Notes on Rust
 #+CATEGORY: note
 
-* Citations
-- "Rust is all about transferring the pain of understanding your program from the future to the present"
-  -- Programming Rust, 2nd Edition, O'Reilly
-
 * Borrow checker
 ** Mutable access is exclusive access
 
@@ -61,9 +57,13 @@ fn main() {
 #+end_src
 
 because the lifetime of ~b~ ends before the lifetime of the mutable reference ~&mut a~.
-*
 
 * Notes on the features
+** Modules
+
+~use crate::something~ is a relative import using where ~crate~ refers to the
+current crate.
+
 ** Structs
 Private field are accessible in the module where the struct is declared (unlike
 C++/Java).
@@ -81,9 +81,23 @@ Either along the implementation with a test directive or when the tests are too
 big they can be put in a separate module named `tests`. Integration tests can
 put in a ~tests~ folder at the level than the ~src~ directory.
 
+* Resources to learn
+** Video on Async programming
+
+[[https://www.youtube.com/watch?v=9_3krAQtD2k][The What and How of Futures and async/await in Rust from Jon Gjengset]]
+
+Outdated but well explained video about asynchronous programming.
+
+* Citations
+- "Rust is all about transferring the pain of understanding your program from the future to the present"
+  -- Programming Rust, 2nd Edition, O'Reilly
+- "Rust is not simple."
+  -- Programming Rust, 2nd Edition, O'Reilly
+
 * Pros
 ** Safe
 ** Fast
+** Active community
 ** Close to the machine but allow high-level constructs
 For example various data collections and operations on them.
 ** How to evolve the language was taken in consideration
@@ -91,10 +105,14 @@ For example various data collections and operations on them.
 - Notion of a language "edition". Different creates can be compiled with
   different editions, allowing both future evolution and still backward
   compatibility (Cargo takes care of compiling with the correct edition)
+** Nice design on the iterators
+Allow many patterns known from functional programming, with a lazy-evaluation
+strategy, but with "zero-cost" abstraction.
 
 * Cons
 ** Large language and keeps growing
-Example: at least three different ways to define a module.
-** Syntax relatively ugly
+- Example: at least three different ways to define a module.
+- go1.21.3.linux-amd64.tar.gz: 64MB, rust-1.73.0-aarch64-unknown-linux-gnu.tar.gz: 440MB
+** Syntax sometimes ugly
 
 When it mixes the following characters: &, ', <, >, ?, :: and ; together...
