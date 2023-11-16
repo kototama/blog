@@ -60,3 +60,7 @@ You can re-export the type definition and add a deriving annotation. For instanc
 - the standard library is weak and there are two alternatives (batteries or
   Base/Core). This split the ecosystem even further
 - Async code: Lwt or Async, and now with OCaml 5: EIO.
+- The inference of the compiler sometimes invalid part of the code which where
+  know to be true when changing another part of the code. This happens because
+  normally most of the code is not annoted with types, so everything can take a
+  new meaning.
