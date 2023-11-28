@@ -1,5 +1,6 @@
 #+TITLE: Notes on Rust
 #+CATEGORY: note
+#+TAGS: rust
 
 * Borrow checker
 ** Mutable access is exclusive access
@@ -64,6 +65,11 @@ because the lifetime of ~b~ ends before the lifetime of the mutable reference ~&
 ~use crate::something~ is a relative import using where ~crate~ refers to the
 current crate.
 
+** Visibility of functions
+
+~pub(crate)~ makes the function available within the crate but not by external
+crate.
+
 ** Structs
 Private field are accessible in the module where the struct is declared (unlike
 C++/Java).
@@ -80,13 +86,23 @@ Or if the binary has multiple source files in a create, have the files ~src/bin/
 Either along the implementation with a test directive or when the tests are too
 big they can be put in a separate module named `tests`. Integration tests can
 put in a ~tests~ folder at the level than the ~src~ directory.
+** Futures
+
+"If and when the future is worth polling again, it promises to let us know by invoking a waker, a callback function supplied in the
+Context." (O'Reilly Rust book)
+** Pin
+Pin prevents moving of types that do not have the Unpin trait. Used in async.
+Moves here mean in the sense of doing a = b (without Copy trait): this lead to
+elements in b being moved to new location b which is problematic for
+self-referential structs, like the ones that the async keyword (macro?)
+generates, thus the concept of pinning.
 
 * Resources to learn
 ** Video on Async programming
 
 [[https://www.youtube.com/watch?v=9_3krAQtD2k][The What and How of Futures and async/await in Rust from Jon Gjengset]]
 
-Outdated but well explained video about asynchronous programming.
+Outdated regarding the types of the functions but well the video explain well futures and executors.
 
 * Citations
 - "Rust is all about transferring the pain of understanding your program from the future to the present"
