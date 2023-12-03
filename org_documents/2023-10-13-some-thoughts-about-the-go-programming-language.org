@@ -1,0 +1,150 @@
+#+TITLE: Some thoughts about the Go programming language
+#+TAGS: golang
+#+CATEGORY: blog
+#+DATE: 2023-10-13
+
+
+A few thoughts on Go after reading a large number of tutorials, articles and
+debates on the subject. To be taken with caution, as I haven't
+used the language for any projects yet!
+
+* C for the 21st century?
+
+In the introduction of [[https://www.gopl.io/][The Go Programming Language book]] the authors write that
+Go is sometimes described as the a "C-like language" or a "C for the 21st
+century", while also mentioning that it has other ancestors (Oberon-2, Newsqueak
+etc). They mention its similar syntax and some of the semantic it shares with C.
+This brings the following two questions.
+
+** Is Go as easy to learn as C?
+
+On the face of it, C is relatively easy to learn. Although pointers are
+difficult for beginners, there are few concepts to learn in order to use it.
+However, it is also hard to master: memory management has to be done manually
+and the language is unsafe. It's very hard to learn to write good C code since
+the language is unsafe in various ways (casting rules, unsafe pointer
+arithmetic, etc) and even the best programmers make mistakes that lead to
+security problems.
+
+Go has familiar concepts for programmers who have already learn one or more
+languages before. The number of concepts is relatively small. Despite being not
+perfect for concurrency (due to is emphasis on mutable data structures) it is
+still an improvement on other languages (such as Python) in this respect. With
+its excellent documentation, tooling, few concepts and safety, it's still easy
+in practice.
+
+** Is Go a replacement of C?
+
+C has been and is used for embedded systems, operating system kernels,
+command-line utilities and servers. Some of these programs cannot have a garbage
+collector for practical reasons (performance). In this sense, Go can't really
+replace C, despite its fast garbage collection.
+
+In a broader sense: C has enabled many applications to be developed in userland
+and on servers, with good performance. Go has also made it possible to develop
+many applications in userland and on servers, with good performance. It offers
+greater productivity than C, more security and better integration with networked
+systems and cloud infrastructures.
+
+* Easy or simple?
+
+
+I think the language is mostly easy because it's familiar. Some aspects of the
+language are not simple at all. I'm referring here to the definition of "simple"
+and "easy" given by Rich Hickey in his talk "Simple made easy". It's mainly
+mainly because of the mutability that is ubiquitous in language. See, for
+example https://www.uber.com/en-DE/blog/data-race-patterns-in-go/
+
+The subject here requires further analysis: channels are simple, but their
+interaction with mutable variables is not. Interfaces appear to be simple.
+
+The introduction of generics makes the type system more complex, but simplifies
+code understanding and writing.
+
+* Why are Go and Rust always compared?
+
+
+Some people are surprised that these two languages are often compared when they
+are so different: Go has a garbage collector, Rust has a borrow checker. So, the
+argument is that we could also compare Rust to the infinite number of languages
+that have a garbage collector and are adapted to the development of "systems" or
+servers: OCaml, Haskell, Java, Kotlin... but we don't because they're too
+different. Consequently, we shouldn't do it with Go because they're so
+different.
+
+The reason these languages are compared is that they are both an answer to C++.
+Their respective responses are different, but some overlap. For example, both
+can be used to write servers and command-line tools. They are also naturally
+compared because they are so widely used (you don't see many comparisons between
+OCaml and Go, for example).
+
+* Go is bad?
+
+Go has been widely criticized since its release. Among the usual criticisms
+were/are :
+- a. the language lacks generic collections,
+- b. the type system is not strong enough,
+- c. the language doesn't allow you to build abstractions,
+- d. error handling is cumbersome,
+- e. despite being free software, Google has the last word on the evolution and
+  maintenance of the language.
+
+
+a) corrected since March 2022.
+
+b) the language allows null pointers and has no enum/sum types (see
+https://viralinstruction.com/posts/uniontypes/ for a definition) where the
+compiler checks branch completeness when matching and switching on the command
+line (unlike Rust, OCaml or Haskell). I don't know why the designers didn't do
+this. Maybe they weren't exposed to the ML family of programming languages. It
+seems that the null pointer problem is less frequent than in C or C++, since
+they are used in fewer contexts.
+
+c) this is both a sin and a virtue (if true). Virtue: avoids hard to read code
+that is too abstract. Sin: adequate level of abstractions are useful for complex
+problems and makes code easier to read and write, rather thanpiecing together
+lot of code doing small things.
+
+d) makes it more difficult to see what is happening in the code in the "happy
+path". It's easier to reason about than exceptions, and it's not weird like C
+which both mix return codes and global variables, but here a third way could
+have been good (option types plus a special construction to shorten the flow, as in
+Rust, OCaml or Haskell).
+
+e) we can see that this can sometimes be problematic, for example when the Go
+team wanted to introduce opt-out telemetry into the Go tool chain. But there are
+advantages too. The language is simple enough, and there's a second Go compiler
+(gccgo) that reduces dependence on Google, in case something bad should happen.
+
+As we all know, every language has its flaws. I was immersed in Clojure when it
+came out and I wasn't impressed by Go! Clojure is flexible, extensible,
+interactive, promotes immutability and channels can be written with macros
+without changing the compiler! I didn't like the fact that it was both
+statically typed but not completely safe, making the same mistakes as Java. I'm
+still not very happy with of that. So it took me a while to look beyond the
+flaws.
+
+At some point, it was announced that generics would be introduced in Go and I
+started to take the language more seriously. If the most painful point
+disappeared, it showed something was done right. What really forced me to change
+my negative opinion of Go was that a lot of very good software is written in Go
+(syncthing, tailscale, prometheus/grafana, cockroachdb, HashiCorp etc). So, even
+if we assume that "Go is bad", then at least Go + the Go ecosystem + the Go
+runtime must be good!
+
+Someone might argue that in a popular language, there will always be good
+software written in that language, simply because of the quantity of software
+produced, but in the field I'm currently interested in (command-line tools, servers and
+networked applications) there aren't that many software in Java or Python, for
+example, that I find really good.
+
+Finally, Go forces me to challenge and recontextualize my conception of what
+constitute a good programming language.
+
+* A future with Go
+
+For the sort of software mentioned above, the software community is better
+served with Go than with C++ or Python, so at least there is some progress here.
+With its flaws and strengths, it's safe to say Go is going to stay for a long
+time given the amount of servers/networking/cloud software written in it.
+
