@@ -1,0 +1,30 @@
+#+TITLE: Searching in Clojure and ClojureScript files
+#+DATE: 2013-01-29
+#+TAGS: clojure emacs
+
+[[http://betterthangrep.com/]["Ack is a tool like grep, optimized for
+programmers"]]. I knew the existence of Ack since a few years but I
+never gave it try. Now that I did, I'm positively surprised: it's easy
+to use and fast.
+
+I was always fighting in Emacs between *grep* (what is the syntax?),
+*igrep-find* (why did it suddenly stopped to prompt for directories?),
+*tags-search* (ooops some of my files are not tagged) and *rgrep* (oh it
+did exist?). I installed
+[[https://github.com/jhelwig/ack-and-a-half][ack-and-a-half]] for Emacs
+and its great. Ack-and-half tries to find automatically the root
+directory of your project but you can set
+ack-and-a-half-prompt-for-directory to true with /(setq
+ack-and-a-half-prompt-for-directory t)/ for it to ask which directory to
+search in.
+
+The Ack version on the [[http://betterthangrep.com/][website]] provides
+support for Clojure files. For ClojureScript files, you need to add the
+following lines to your ~/.ackrc file:
+
+#+begin_example
+--type-add
+clojure=.cljs
+#+end_example
+
+Et voila, enjoy!

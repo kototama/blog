@@ -1,0 +1,28 @@
+#+TITLE: Implementing a Lisp
+#+DATE: 2012-05-02
+#+TAGS: c lisp
+
+To extend my knowledge and to have a better understanding of the Lisp's
+foundations, I implemented a simple Lisp in C. It supports symbols,
+integers, a few primitives, anonymous functions, closures, macros and
+garbage collection. The implementation follows the KISS principles and
+is around 1400 lines of code.
+
+
+Discussion: [[http://news.ycombinator.com/item?id=3919685]]
+Code: [[https://github.com/kototama/kml]]
+
+* Comments from a previous version of my blog
+:PROPERTIES:
+:CUSTOM_ID: comments
+:END:
+
+postfuturist
+
+Hey, cool project. I just started something similar, here:
+https://github.com/deliciousrobots/lisp . I'm intrigued by your
+implementation of garbage collection... an area I punted on (just using
+Boehm's GC), but eventually would like to implement myself. I'll be
+reading through your code for inspiration and comparison, so far I like
+what I'm seeing. You can email me (steveth45 at the google mail
+service).

@@ -1,0 +1,83 @@
+#+TITLE: Duplicating s-expressions on a line
+#+DATE: 2013-01-15
+#+TAGS: emacs-lisp clojure
+
+Duplicating a line is extremely useful when editing text and specially
+when programming. There is no native command in Emacs to achieve that
+but
+[[http://stackoverflow.com/questions/88399/how-do-i-duplicate-a-whole-line-in-emacs][it's
+easy to add one]].
+
+It's easy to get addicted to the use of this new command but a problem
+remains when programming in Lisp with
+[[http://emacswiki.org/emacs/ParEdit][paredit.el]]: duplicating
+sometimes lead to invalid s-expressions being inserted.
+
+I decided to give it a try and made an implementation that duplicate the
+s-expressions after the point (cursor). For instance in Clojure if you
+are editing this code:
+
+#+name: code
+#+begin_src clojure
+(ns myns
+  (:use [clojure.string :only [escape]]))
+#+end_src
+
+You can duplicate the first vector by placing the cursor on the square
+bracket, invoking the command with one keystroke and then easily obtain
+this code:
+#+name: code
+#+begin_src clojure
+(ns myns
+  (:use [clojure.string :only [escape]]
+        [clojure.set :only [union]]))
+#+end_src
+
+Here is the code to duplicate the line; to my knowledge there is no such
+command in [[http://emacswiki.org/emacs/ParEdit][paredit.el]]:
+
+#+begin_src elisp
+  (defun paredit-duplicate-after-point
+    ()
+    "Duplicates the content of the line that is after the point."
+    (interactive)
+    ;; skips to the next sexp
+    (while (looking-at " ")
+      (forward-char))
+    (set-mark-command nil)
+    ;; while we find sexps we move forward on the line
+    (while (and (<= (point) (car (bounds-of-thing-at-point 'sexp)))
+                (not (= (point) (line-end-position))))
+      (forward-sexp)
+      (while (looking-at " ")
+        (forward-char)))
+    (kill-ring-save (mark) (point))
+    ;; go to the next line and copy the sexprs we encountered
+    (paredit-newline)
+    (set-mark-command nil)
+    (yank)
+    (exchange-point-and-mark))
+
+#+end_src
+
+Not really pretty but it does the work, feel free to provide a nicer
+implementation in the comments or add it to your ~/.emacs.d/init.el file with:
+
+
+#+begin_src emacs-lisp
+  (eval-after-load "paredit" '(progn
+      (define-key paredit-mode-map (kbd "C-S-d") 'paredit-duplicate-after-point)))
+#+END_SRC
+
+Edit: [[https://github.com/kototama/.emacs.d/blob/master/elisp/setup-lisp.el#L51][Here a fix]] for when the sexp is the last expression in the buffer.
+
+* Comments from a previous version of the blog
+:PROPERTIES:
+:CUSTOM_ID: comments
+:END:
+
+Neale Swinnerton
+
+Nice idea. Have you tried expand-region ? It doesn't do quite what
+you're trying here, but it handles most of the 'sexp that straddles a
+line ending issues'

@@ -1,0 +1,241 @@
+#+TITLE: When let maybe
+#+TAGS: clojure monad
+#+DATE: 2010-12-07
+
+In this post we will see how to incrementally develop a macro similar to
+[[http://clojuredocs.org/clojure_core/clojure.core/when-let][when-let]]
+but more flexible.
+
+
+When-let is useful to both bind one variable and do a test on the bind
+value in one operation. One common usage is:
+
+#+name: code
+#+begin_src clojure
+(when-let [something (get-something arg1 arg2)]
+   (do-stuff something))
+#+end_src
+
+
+
+This is equivalent to this code:
+
+#+name: code
+#+begin_src clojure
+(let [something (get-something arg1 arg2)]
+   (when something
+      (do-stuff something)))
+#+end_src
+
+
+but with a more concise form.
+
+When-let only *executes the code* after the binding if the value
+assigned in the let form is logically true, that is *only if the value
+is not nil or false*. In our example, this means that if /get-something/
+returns false then /do-stuff/ will not be executed. Sometimes this is
+not enough and we want to execute the code even for false values. For
+instance if we are getting our data from a database and false values are
+acceptable but nil values are not, or if our functions return nil on
+error.
+
+We could define a when-nlet macro which does what when-let does but
+executes the body whenever the binded value is not nil. By spying the
+code from
+[[https://github.com/clojure/clojure/blob/master/src/clj/clojure/core.clj#L1625][clojure.core]]
+we obtain:
+
+#+name: code
+#+begin_src clojure
+(defmacro when-nlet [bindings & body]
+  (when (not= (count bindings) 2)
+    (throw (IllegalArgumentException.
+            "when-nlet requires an even number of forms in binding vector")))
+  (let [form (bindings 0)
+        tst (bindings 1)]
+    `(let [temp# ~tst]
+        (when (not (nil? temp#))
+          (let [~form temp#]
+            ~@body)))))
+#+end_src
+
+
+This is fine. But what if we need multiple values to be bound and
+multiple checks on them?
+
+We could write:
+
+#+name: code
+#+begin_src clojure
+(when-nlet [val1 (get-something arg1 arg2)]
+  (when-nlet [val2 (get-something2 val1)]
+     (when-nlet [val3 (get-something3 val2]
+        (do-stuff val1 val2 val3))))
+#+end_src
+
+
+This is not satisfying. What about writing a when-nlet* macro that does
+multiple binds?
+
+We could call it like that:
+
+#+name: code
+#+begin_src clojure
+(when-nlet* [val1 (get-something arg1 arg2)
+             val2 (get-something2 val1)
+             val3 (get-something3 val2)]
+          (do-stuff val1 val2 val3))
+#+end_src
+
+
+and it would produce multiple calls to when-nlet.
+
+Here it is:
+
+#+name: code
+#+begin_src clojure
+(defmacro when-nlet* [bindings & body]
+  (when (not (even? (count bindings)))
+    (throw (IllegalArgumentException.
+            "when-nlet* requires an even number of forms in binding vector")))
+  (let [whenlets (reduce (fn [sexpr bind]
+                           (let [form (first bind)
+                                 tst (second bind)]
+                             (conj sexpr `(when-nlet [~form ~tst]))))
+                         ()
+                         (partition 2 bindings))
+        body (cons 'do body)]
+    `(->> ~body ~@whenlets)))
+#+end_src
+
+
+After the reduce the /whenlets/ variable is assigned this list (we can
+see it by playing with macroexpand, macroexpand-1 and prn at the
+REPL): 
+
+#+name: code
+#+begin_src clojure
+((when-nlet [val3 (get-something3 val2)]) (when-nlet [val2 (get-something2 val1)]) (when-nlet [val1 (get-something arg1 arg2)]))
+#+end_src
+
+
+We then thread the body inside the /when-nlets/ forms with the powerful
+[[http://clojuredocs.org/clojure_core/clojure.core/-%3E%3E][->>]] macro.
+We obtain:
+
+#+name: code
+#+begin_src clojure
+(when-nlet [val1 (get-something arg1 arg2)]
+  (when-nlet [val2 (get-something2 val1)]
+    (when-nlet [val3 (get-something3 val2)]
+      (do (do-stuff val1 val2 val3)))))
+#+end_src
+
+
+So basically what we have done is creating a macro that does multiple
+binds, stops after the first bind returning a nil value and executes its
+body if no nil value has been encountered. It is nice and it shows us
+how much powerful Clojure is but... if we read this
+[[http://onclojure.com/2009/03/05/a-monad-tutorial-for-clojure-programmers-part-1/][tutorial]]
+on how to use [[http://min.us/mbv5B0RWqYQTcI][monads]] in Clojure we
+quickly see that there is a simpler way to do the same thing with the
+maybe monad!
+
+#+name: code
+#+begin_src clojure
+(domonad maybe-m [val1 (get-something "a" "b")
+                  val2 (get-something2 val1)
+                  val3 (get-somnil val2)]
+               (do-stuff val1 val2 val3))
+#+end_src
+
+
+This code is equivalent to our usage of when-nlet*. Thus, if we still
+feel the need for our when-nlet* macro, we could write it simply like
+that (after :using
+[[http://richhickey.github.com/clojure-contrib/monads-api.html][clojure.contrib.monads]]):
+
+#+name: code
+#+begin_src clojure
+(defmacro when-nlet* [binding & body]
+  (let [body (cons 'do body)]
+   `(domonad maybe-m ~binding ~body)))
+#+end_src
+
+
+Is that not much better?
+
+Conclusion: we shall not write macros before learning more about monads
+;-) !
+
+** Comments on this post (from a previous version of the blog):
+:PROPERTIES:
+:CUSTOM_ID: comments
+:END:
+
+Anonymous
+
+You're using the "fn*" convention precisely opposite to how most people
+do in Clojure.
+
+Usually, the asterisk suffix is used on a helper _function_ that is
+paired with a macro (with no suffix) that is only sugar around the
+function.
+
+Nicolas
+
+Very nice. This is the Maybe monad in Haskell, the Maybe type being
+defined as such:
+
+data Maybe a = Just a | Nothing
+Just and Maybe are the constructors of the Maybe type. This is close to
+a C++ template on <a>, really.
+
+The do macro can be used to chain operations:
+
+#+BEGIN_SRC haskell
+maybeM = do
+val1 <- getSomething "a" "b"
+val2 <- getSomething2 val1
+val3 <- getSomnil val2
+doStuff val1 val2 val3
+#+END_src
+
+Each one of these function must return a Maybe type, constructed with
+"Nothing", or "Just 42" for instance. To simplify things, let's just say
+that the arrow is an extraction of the internal Maybe value. val1 will
+be an Int, or a String, for example. Not a Maybe Int or Maybe String.
+
+There is another way to write this do program:
+
+#+BEGIN_SRC haskell
+maybeM = getSomething "a" "b"
+>>= \val1 -> getSomething2 val1
+>>= \val2 -> getSomnil val2
+>>= \val3 -> doStuff val1 val2 val3
+#+END_SRC
+
+~>>=~ looks like a funnel, and behaves sort of like the unix pipe: take
+the result of the function getSomething "a" "b", and if you can extract
+it from a Maybe type, pipe it into the lambda function that takes 1
+parameter (val1). If the return is Nothing, then we can't extract
+anything and stop the evaluation there.
+
+This is why monads are needed to do I/O in Haskell: I/O functions return
+an action; executing it produces the new state of the world and has an
+I/O side-effect.
+
+People start using Javascript on the server now using Node.JS with a lot
+of asynchronous functions; they write code like:
+
+#+BEGIN_SRC js
+getSomething("a", "b", function(val1) {
+getSomething2(va11, function(va2){
+getSomnil(val2, function(val3) {
+doStuff(val1, val2, val3); // wtf.
+});
+});
+});
+#+END_SRC
+
+This must be horrible to anyone who has been introduced to monads.

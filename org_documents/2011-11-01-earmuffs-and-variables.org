@@ -1,0 +1,69 @@
+#+TITLE: Earmuffs and variables
+#+DATE: 2011-11-01
+#+TAGS: emacs-lisp
+
+According to the
+[[http://dev.clojure.org/display/design/Library+Coding+Standards][Clojure
+coding standards for libraries]], variables names should be written with
+*earmuffs* only when they are intended to be rebind.
+
+Here and there I forget this rule and use earmuffs most of the time, so
+I decided to create an Emacs Lisp function to add/remove earmuffs to
+variable:
+
+#+BEGIN_SRC elisp
+(defun earmuffy (&optional arg)
+  (interactive "P")
+  (let* ((variable (thing-at-point 'sexp))
+         (bounds (bounds-of-thing-at-point 'sexp))
+         (current-point (point))
+         (earmuffed-variable (concat "*" variable "*")))
+    (save-excursion)
+    (kill-region (car bounds) (cdr bounds))
+    (if arg
+        ;; unearmuffy
+        (progn
+          (insert (substring variable 1 (- (length variable) 1)))
+          (goto-char (- current-point 1)))
+      ;; earmuffy
+      (progn
+        (insert earmuffed-variable)
+        (goto-char (+ current-point 1))))))
+#+END_SRC
+
+Add it to your .emacs file and then place your cursor on a variable and
+call it with
+#+begin_example
+M-x earmuffy
+#+end_example
+
+to add earmuffs, or type
+#+begin_example
+C-u M-x earmuffy
+#+end_example
+
+to remove them.
+
+* Comments from past versions of the blog
+:PROPERTIES:
+:CUSTOM_ID: comments
+:END:
+
+
+
+Kototama
+
+Thanks for providing a better implementation.
+
+I'm experimenting with Emacs Lisp time to time but didn't read so much
+documentation about it yet so it's welcome to see improvement to my
+experiments.
+
+Anonymous
+
+I bit the bullet and implemented this: https://gist.github.com/1385279
+
+Anonymous
+
+Wouldn't it be nicer to have toggle-earmuffs, which detects what you
+currently have and toggle it?

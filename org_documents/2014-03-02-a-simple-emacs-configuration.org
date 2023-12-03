@@ -1,40 +1,49 @@
 #+TITLE: A simple Emacs configuration
 #+DATE: 2014-03-02
-#+TAGS: emacs
+#+TAGS: emacs-lisp 
 
-In this post I introduce a simple, effective and maintainable
-structure for the ~.emacs.d~ configuration directory.
+In this post I introduce a simple, effective and maintainable structure
+for the =.emacs.d= configuration directory.
 
 I have a mix feeling about pre-defined Emacs configurations such are
-[[https://github.com/overtone/emacs-live][Emacs Live]] or [[https://github.com/bbatsov/prelude][Prelude]]. In one hand they build a nice showcase,
-demonstrating powerful modes and features, in the other hand they seem
-complex in their structure and use their own abstractions ("modules"
-for Prelude, "pack" for Emacs Live). That is why I still prefer to
-write my own configuration which I can easily fix. Of course I still
-dig in people configuration to get ideas. Basically I have reached the
-same conclusion as [[https://github.com/technomancy][technomancy]] which stopped its [[https://github.com/technomancy/emacs-starter-kit][Emacs Starter Kit]].
+[[https://github.com/overtone/emacs-live][Emacs Live]] or
+[[https://github.com/bbatsov/prelude][Prelude]]. In one hand they build
+a nice showcase, demonstrating powerful modes and features, in the other
+hand they seem complex in their structure and use their own abstractions
+("modules" for Prelude, "pack" for Emacs Live). That is why I still
+prefer to write my own configuration which I can easily fix. Of course I
+still dig in people configuration to get ideas. Basically I have reached
+the same conclusion as [[https://github.com/technomancy][technomancy]]
+which stopped its
+[[https://github.com/technomancy/emacs-starter-kit][Emacs Starter Kit]].
 
-In the last weeks I have redone my configuration removing [[https://github.com/dimitri/el-get][El-Get]],
-which I found too slow, in favor of [[http://melpa.milkbox.net][MELPA]]. My initial switch to El-Get
-was because [[http://marmalade-repo.org/][Marmalade]] was often down ; I didn't experience the same
-issues with MELPA.
+In the last weeks I have redone my configuration removing
+[[https://github.com/dimitri/el-get][El-Get]], which I found too slow,
+in favor of [[http://melpa.milkbox.net/][MELPA]]. My initial switch to
+El-Get was because [[http://marmalade-repo.org/][Marmalade]] was often
+down ; I didn't experience the same issues with MELPA.
 
-The configuration is based on [[https://github.com/zenspider/package][package+]] (the name is hard to search on
-the web!) and the great [[https://github.com/jwiegley/use-package][use-package]] package. A ~makefile~ installs the
-few git submodules needed, download user-defined packages and
-byte-compiles the packages. User and machines specific configurations
-can be defined in the ~$HOME/.eroles/login@hostname/~ directory. The
-~auto-async-byte-compile~ mode ensures that Emacs Lisp files are
-always byte-compiled.
+The configuration is based on
+[[https://github.com/zenspider/package][package+]] (the name is hard to
+search on the web!) and the great
+[[https://github.com/jwiegley/use-package][use-package]] package. A
+=makefile= installs the few git submodules needed, download user-defined
+packages and byte-compiles the packages. User and machines specific
+configurations can be defined in the =$HOME/.eroles/login@hostname/=
+directory. The =auto-async-byte-compile= mode ensures that Emacs Lisp
+files are always byte-compiled.
 
 All packages configurations are done in a lazy way, thanks to
-use-package, and organized with ~orgstruct-mode~ in an org-like
+use-package, and organized with =orgstruct-mode= in an org-like
 structure.
 
-I stole a few ideas [[https://github.com/magnars][here]], [[https://github.com/technomancy][there]] and [[https://github.com/jwiegley][there]] for the configuration.
+I stole a few ideas [[https://github.com/magnars][here]],
+[[https://github.com/technomancy][there]] and
+[[https://github.com/jwiegley][there]] for the configuration.
 
 The configuration is simple yet effective, I hope it can inspire
-beginners or even advanced users for how to structure an ~.emacs.d~
+beginners or even advanced users for how to structure an =.emacs.d=
 directory effectively.
 
-See my [[https://github.com/kototama/.emacs.d][.emacs.d configuration on GitHub]] and happy hacking!
+See my [[https://github.com/kototama/.emacs.d][.emacs.d configuration on
+GitHub]] and happy hacking!

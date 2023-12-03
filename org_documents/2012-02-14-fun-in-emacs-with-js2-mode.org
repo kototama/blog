@@ -1,0 +1,24 @@
+#+TITLE: js2-mode fun
+#+DATE: 2012-02-14
+#+TAGS: javascript emacs
+
+#+CAPTION: screenshot from emacs
+#+NAME: screenshot.jpg
+#+attr_html: :width 400px
+http://4.bp.blogspot.com/-4jB0GrflB-Y/TzpCe9IYHbI/AAAAAAAAAB0/OHKR5kTnzpM/s1600/noeffects.png
+
+No side effects? How bad can _THAT_ be :-) ?
+
+* Comments from a previous version of this blog
+:PROPERTIES:
+:CUSTOM_ID: comments
+:END:
+
+Konrad Hinsen
+
+A function called send_data that has no side effects is a bit suspect.
+
+Roman Parykin
+
+Code without side effects?
+It's the ugliest thing one could do in js... :)

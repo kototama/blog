@@ -1,0 +1,129 @@
+#+TITLE: Dear language designers, do not forget Ada
+#+DATE: 2011-05-08
+#+TAGS: ada
+
+These last days I took some time to refresh my old memories of the Ada
+language. While Ada, like all languages, has defaults on its own I'm
+still very impressed by some functionalities it offers and that current
+mainstream languages still don't have. Most of these functionalities are
+there since the first standardized version in 1983 (since then the
+language standard was extended in 1995, 2005 and the next version is
+expected for 2012).
+
+The first impressive future is about primitive types. Here are some of
+the types defined in Ada and their C equivalent (taken from
+[[e][http://www.pegasoft.ca/resources/boblap/book.html]]):
+
+| Ada Type            | Description                         | C Equivalent              |
+|---------------------+-------------------------------------+---------------------------|
+| Character           | A single character                  | char                      |
+| Integer             | An integer (32-bit) number          | int                       |
+| Natural             | Zero or positive integer            | -                         |
+| Positive            | A positive integer                  | -                         |
+| Long_Integer        | A big integer (same as long in Gcc) | long (same as int in Gcc) |
+| Long_Long_Integer   | A really big (64-bit) integer       | long long                 |
+| Short_Integer       | A small (16-bit) integer            | short                     |
+| Short_Short_Integer | A really small (8-bit) integer      | char                      |
+| Float               | A real number                       | float                     |
+| Long_Float          | A big real number                   | double                    |
+| Long_Long_Float     | A really big real number            | long double               |
+| Short_Float         | A smaller real number               | ?                         |
+| Fixed               | A fixed-point real number           | -                         |
+| String              | An Ada fixed-length string          | char array                |
+
+
+Boolean types are also provided. New types are defined and type safety
+is guaranteed. Here we define a new type based on a Long_Float and a
+variable of this type:
+#+name: code
+#+begin_example
+type Speed is new Long_Float;
+
+Speedy_Gonzales_Speed : Speed;
+#+end_example
+
+
+Since Speed is a new type, it is not a Long_Float and thus assignment
+from a Long_Float value to a Speed variable is forbidden:
+#+name: code
+#+begin_example
+X : Long_float := 300.0; 
+Speedy_Gonzales_Speed := X;
+#+end_example
+
+The compiler effectively gives an error:
+
+=expected type "Speed" defined at line 6=
+=found type "Standard.Long_Float"=
+
+When it makes sense, we can define a subtype of another primitive type.
+Assignments between types and their subtypes is allowed. Here we define
+the type Degree which is a subtype of Float:
+#+name: code
+#+begin_example
+subtype Degree is Long_Float;
+
+Oven_Temperature : Degree;
+Y : Long_Float := 255.0;
+
+Oven_Temperature := Y;
+#+end_example
+
+
+Types can be constrained with a range definition (taken from the wikipedia page):
+#+name: code
+#+begin_example
+type Degrees is new Float range -273.15 .. Float'Last;
+#+end_example
+
+
+This allow a Degrees variable to range from -273.15 (absolute zero) to
+the last value allowed by a Float.
+
+This strong typing provides safety and contrasts with what is seen in
+current mainstream programming languages. Languages like Java don't
+provide rich primitive types (there are for instance no unsigned integer
+in Java!) and require the programmer to define its own cumbersome
+classes if he wants new types (which poses readability problems if the
+types are new number types and the language does not support operator
+overloading). Some languages like C don't even bother so much about type
+conversion: a float can be assigned to an integer. This leads to
+solutions which are far from being satisfying (see for instance
+[[http://c-faq.com/fp/round.html][C FAQ - round]]).
+
+A lot of other possibilities are offered to the Ada programmer, for
+instance decimal types can be defined with their precision. The
+precision is then guaranteed by the compiler:
+#+name: code
+#+begin_example
+type money is delta 0.01 digits 18;
+#+end_example
+
+Ada also supports multidimensional arrays, bit-level memory access,
+definition of memory pool, concurrency programming in a task-oriented
+way, object-oriented programming, generic packages etc.
+
+At another level Scheme and Common Lisp supports a numeric towel. For
+example, 3 is an integer. Therefore 3 is also a rational, a real, and a
+complex (example from the
+[[http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_sec_6.2.1][Scheme
+standard]]).
+
+#+name: code
+#+begin_example
+;; in Scheme:
+> (rational? (/ 1 5))
+#t
+> (rational? 3)
+#t
+> (real? 3)
+#t
+#+end_example
+
+While this discussion may not make so much sense for dynamic languages
+such as Clojure, I think new languages being designed, which are not
+dynamically typed, could really benefit of having such rich primitives
+types. A complex type systems like the one from ML or Haskell is not
+needed for this purpose and primitives types is the most basic and most
+used feature of a programming language, so dear languages designers,
+next time, have a small thought for Ada.

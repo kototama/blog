@@ -1,0 +1,19 @@
+#+TITLE: An Emacs minor mode for the ClojureScript
+#+DATE: 2012-10-18
+#+TAGS: emacs-lisp clojurescript
+
+When programming with ClojureScript, one has to lunch *"lein cljsbuild
+auto"* to automatically compiles its ClojureScript sources. It is
+convenient but a problem remains: the output of the compilation process
+must be manually read to see if any errors or warnings occur.
+
+To solve this problem I programmed a simple minor mode for Emacs. If you
+start the *cljsbuild* command in a terminal buffer, it will watch the
+ouput and popup the window if an error or a warning occurs. It can also
+automatically hide the process when the compilation succeed, so that you
+are able to concentrate on what matters, the code.
+
+It's available on [[http://marmalade-repo.org/][Marmalade]] or
+[[https://github.com/kototama/cljsbuild-mode][Github]].
+
+Feedback and patches are welcomed!
