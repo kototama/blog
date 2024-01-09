@@ -198,3 +198,6 @@ Alternative: starts with `nix repl '<nixpkgs>'`
 
 https://git.sealight.xyz/aynish/basant/src/branch/main/flake.nix
 
+* Resources
+
+- https://journal.platonic.systems/nix-flake-architecture-in-practice/#supporting-forall-architectures
