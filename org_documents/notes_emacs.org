@@ -1,0 +1,5 @@
+* Tips
+
+** Find caller of a function
+
+~xref-find-reference~, bound to ~M-?~.
