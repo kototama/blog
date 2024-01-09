@@ -82,6 +82,7 @@ If there is a ~src/lib.rs~ file, Cargo will build a library, and it forms the ro
 ** Building a binary with a lib
 If there is a ~/src/bin/something.rs~ folder, Cargo will build a binary. Run it with ~cargo run --bin something~.
 Or if the binary has multiple source files in a create, have the files ~src/bin/something/{main.rs, part1.rs, part2.rs}~.
+Cargo "discovers" the binaries to build but for more complex cases, the paths and names can be specified in Cargo.toml.
 ** Tests
 Either along the implementation with a test directive or when the tests are too
 big they can be put in a separate module named `tests`. Integration tests can
