@@ -23,11 +23,11 @@
 
 ** Tracing a module (without a process):
 
-~recon_trace:calls({:Module, :_, :_}, 20, [])~
+~:recon_trace.calls({:Module, :_, :_}, 20, [])~
 
 ** Tracing a module for a process:
 
-~recon_trace:calls({:_, :_, :_}, 20, [{:pid, server}])~
+~:recon_trace.calls({:_, :_, :_}, 20, [{:pid, server}])~
 
 ** Tracing a module to a file
 
