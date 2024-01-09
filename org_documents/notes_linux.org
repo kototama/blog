@@ -2,6 +2,12 @@
 #+TAGS: linux
 #+CATEGORY: note
 
+* Networking
+
+** Shaping traffic to debug
+
+~tc~ and ~wondershaper~ utilities.
+
 * Tips
 
 ** Increase scrollbar size in Firefox
