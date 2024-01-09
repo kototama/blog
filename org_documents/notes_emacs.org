@@ -1,3 +1,7 @@
+#+TITLE: Notes on Emacs
+#+CATEGORY: note
+#+TAGS: emacs
+
 * Tips
 
 ** Find caller of a function
