@@ -1,0 +1,31 @@
+#+TITLE: About
+
+* Me
+
+I'm currently working in the green energy industry, as a sofware engineer. I
+have various interests such as programming, ashtanga yoga, reading, tabletop
+games etc. This website is currently mostly about tech.
+
+* History
+
+This website is the revamping of my old blog and the fourth generation. The
+first version what hosted on Blogger, the second version was self-hosted using
+Octopress (Jekyll), the third version was using Hugo. I had no specific problems
+with Hugo but as an experiment it is now generated using my own software.
+
+It has the advantages of letting me experiment with a new programming language
+and is more malleable. For a small project like this, it's also funnier to
+implement a missing functionality than reading the documentation of a plugin
+from a third-party software.
+
+The inspiration to revamp the website comes from [[https://wiki.xxiivv.com/site/webring.html][this webring]].
+
+* Sources
+
+The [[https://orgmode.org/][org-mode]] documents for the site can be found [[https://github.com/kototama/blog/tree/master/org_documents][here]].
+
+The software used to generate this site can be found [[https://git.sr.ht/~kototama/vademecum][here]].
+
+* Contact
+
+You can drop me an email at ~kototama -> posteo.jp~.
