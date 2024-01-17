@@ -98,6 +98,11 @@ elements in b being moved to new location b which is problematic for
 self-referential structs, like the ones that the async keyword (macro?)
 generates, thus the concept of pinning.
 
+** Async and futures
+
+A function with signature ~async pub fn do_something() -> R~ returns an opaque
+future type that implements ~Future<Output=R>~.
+
 * Resources to learn
 ** Video on Async programming
 
