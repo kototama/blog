@@ -86,6 +86,13 @@ iex(11)> :eprof.analyze()
 #+END_SRC
 
 ** Profiling all processes
+
+#+BEGIN_SRC
+:eprof.start_profiling(:erlang.processes())
+:eprof.stop_profiling()
+:eprof.analyze(:total)
+#+END_SRC
+
 ** More accurate profiling (slower) and call graphs
 
 #+BEGIN_SRC elixir
