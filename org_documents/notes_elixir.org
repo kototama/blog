@@ -69,11 +69,10 @@ defmodule Msgs do
 endMsgs.write()
 
 #+END_SRC
-** Profiling a module
+** Profiling a process
 #+BEGIN_SRC elixir
-iex(7)> :eprof.start_profiling([logger])
+iex(7)> :eprof.start_profiling([Logger])
 :profiling
-iex(8)> Logger.warn("hello, world!")
 iex(8)> require Logger
 Logger
 iex(9)> Logger.warn("hello, world!")
@@ -86,13 +85,27 @@ iex(11)> :eprof.analyze()
 
 #+END_SRC
 
-** Profiling all modules
+** Profiling all processes
+** More accurate profiling (slower) and call graphs
 
 #+BEGIN_SRC elixir
-:eprof.start_profiling(:erlang.processes())
-:eprof.stop_profiling()
-:eprof.analyze(:total)
+  :fprof.start()
+  # either all processes
+  :fprof.trace([:start, {:procs, :all}])
+  # or one pid for the RootSet
+  :fprof.trace([:start, {:procs, PID}])
+  # run the code here
+  :fprof.trace([:stop])
+  :fprof.profile()
+  :fprof.analyse([:totals, {:dest, '/tmp/analysis.txt'}])
+  :fprof.stop()
+#+END_SRC
 
+Then in the shell:
+
+#+BEGIN_SRC bash
+  erlgrind analysis.txt
+  kcachegrind analysis.cgrind
 #+END_SRC
 
 * Ecto
