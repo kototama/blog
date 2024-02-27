@@ -8,6 +8,14 @@
 
 ~tc~ and ~wondershaper~ utilities.
 
+** MTU problems / find adequate MTU size
+
+Start with:
+
+~ping -M do -s 1500 -c 1 <SERVER>~
+
+then decrease the 1500 value until the packet is transmitted.
+
 * Tips
 
 ** Increase scrollbar size in Firefox
@@ -23,6 +31,16 @@ widget.non-native-theme.scrollbar.size.override 30
 # for the scrollbar shape
 
 widget.non-native-theme.scrollbar.style 4
+
+#+end_src
+
+* Fish shell
+
+Test fish shell without local customization:
+
+#+begin_src shell
+
+sh -c 'env HOME=$(mktemp -d) XDG_CONFIG_HOME= fish'
 
 #+end_src
 
