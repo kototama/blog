@@ -28,11 +28,38 @@ From: https://www.reddit.com/r/NixOS/comments/cn6nt4/how_is_overrideattrs_differ
   packagesOverride is used in the Python module.
 
 * Tips
+
 ** Track merge requests
 
 https://status.nixos.org/
 
 https://nixpk.gs/pr-tracker.html
+
+** GC problems
+
+#+BEGIN_SRC sh
+  sudo /run/current-system/bin/switch-to-configuration boot
+#+END_SRC
+
+#+BEGIN_SRC sh
+    rm /nix/var/nix/gcroots/auto/*
+#+END_SRC
+
+#+begin_src nix
+nix-store --query --roots  /nix/store//0m2axb8lbpj9sqfiy4ys6pgyxmafb64b-emacs-28.2
+nix-store --gc --print-roots
+nix why-depends /run/current-system /nix/store//rwraw7nhqvc05wcc1zqrxyaickbrdhnd-ghc-9.2.4
+#+end_src
+
+#+begin_src nix
+nix-store -q --referrers $(nix-instantiate '<nixpkgs>' -A python3Packages.enamlx)
+#+end_src
+
+** List generations
+
+#+BEGIN_SRC sh
+nix profile history --profile /nix/var/nix/profiles/system
+#+END_SRCC
 
 ** Deploy to a remote machine
 
@@ -45,7 +72,6 @@ https://www.ertt.ca/nix/shell-scripts/#org9e3c61b
 ** Evaluate an expression
 
 nix eval  --raw --impure --expr 'with builtins; toJSON (attrNames (import ./. {}).tools)'
-
 
 ** Choose Elixir for a specific OTP version
 
@@ -82,18 +108,6 @@ Todo: make it not recompile. https://github.com/svanderburg/node2nix/issues/118
 ** Python
   Derivations built with `buildPythonPackage` can already be overriden with `override`, `overrideAttrs`, and `overrideDerivation`.
   This function introduces `overridePythonAttrs` and it overrides the call to `buildPythonPackage`.
-
-** GC problems
-
-#+begin_src nix
-nix-store --query --roots  /nix/store//0m2axb8lbpj9sqfiy4ys6pgyxmafb64b-emacs-28.2
-nix-store --gc --print-roots
-nix why-depends /run/current-system /nix/store//rwraw7nhqvc05wcc1zqrxyaickbrdhnd-ghc-9.2.4
-#+end_src
-
-#+begin_src nix
-nix-store -q --referrers $(nix-instantiate '<nixpkgs>' -A python3Packages.enamlx)
-#+end_src
 
 ** Use a binary with nix
 
