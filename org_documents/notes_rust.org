@@ -98,6 +98,23 @@ elements in b being moved to new location b which is problematic for
 self-referential structs, like the ones that the async keyword (macro?)
 generates, thus the concept of pinning.
 
+"Pin prevents data getting moved the same way that reference prevent aliasing:
+by restricting what you can do with it. In particular functions that can move a
+T require either the T itself or &mut T (for example Vec::push or mem::swap).
+Wrapping a pointer with Pin prevents you from performing these kinds of
+operations, instead restricting you to ones that can take a Pin<Box<T>> or
+Pin<&mut T>" [[https://www.reddit.com/r/rust/comments/tcgmjr/comment/i0d9x6x/][source]]
+
+Implementation of ~get_mut~ in ~Pin~ module:
+#+BEGIN_SRC rust
+    pub const fn get_mut(self) -> &'a mut T
+    where
+        T: Unpin,
+    {
+        self.pointer
+    }
+#+END_SRC
+
 ** Async and futures
 
 A function with signature ~async pub fn do_something() -> R~ returns an opaque
