@@ -51,6 +51,8 @@ match(someData) {
   ...
 }
 
+#+END_SRC
+
 ** Modules
 
 ~use crate::something~ is a relative import using where ~crate~ refers to the
