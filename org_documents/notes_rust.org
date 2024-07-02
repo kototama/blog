@@ -2,7 +2,92 @@
 #+CATEGORY: note
 #+TAGS: rust
 
-* Borrow checker
+* Notes on the features
+** Pin
+Pin prevents moving of types that do not have the Unpin trait. Used in async.
+Moves here mean in the sense of doing a = b (without Copy trait): this lead to
+elements in b being moved to a new memory location b which is problematic for
+self-referential structs, like the ones that the async keyword (macro?)
+generates.
+
+"Pin prevents data getting moved the same way that reference prevent aliasing:
+by restricting what you can do with it. In particular functions that can move a
+T require either the T itself or &mut T (for example Vec::push or mem::swap).
+Wrapping a pointer with Pin prevents you from performing these kinds of
+operations, instead restricting you to ones that can take a Pin<Box<T>> or
+Pin<&mut T>" [[https://www.reddit.com/r/rust/comments/tcgmjr/comment/i0d9x6x/][source]]
+
+Implementation of ~get_mut~ in ~Pin~ module:
+#+BEGIN_SRC rust
+    pub const fn get_mut(self) -> &'a mut T
+    where
+        T: Unpin,
+    {
+        self.pointer
+    }
+#+END_SRC
+
+Articles:
+- https://www.youtube.com/watch?v=DkMwYxfSYNQ
+- https://without.boats/blog/three-problems-of-pinning/
+
+** Error management
+https://blog.burntsushi.net/rust-error-handling/#defining-your-own-error-type
+** Matching
+
+It's possible to filter on the match:
+
+#+BEGIN_SRC rust
+
+match(someData) {
+  Ok(n) if n == 0 => {
+    // do something
+  }
+
+  Ok(n) => {
+    // do something else
+  }
+
+  ...
+}
+
+** Modules
+
+~use crate::something~ is a relative import using where ~crate~ refers to the
+current crate.
+
+** Visibility of functions
+
+~pub(crate)~ makes the function available within the crate but not by external
+crate.
+
+** Structs
+Private field are accessible in the module where the struct is declared (unlike
+C++/Java).
+** Constants and static
+Constants are for magic numbers, fixed strings etc. Static declares a variable
+that is set up at the start of the program and until it exits. Mutable static
+are not thread-safe (nothing enforced here with the borrow checker).
+** Declaring a library
+If there is a ~src/lib.rs~ file, Cargo will build a library, and it forms the root module of it
+** Building a binary with a lib
+If there is a ~/src/bin/something.rs~ folder, Cargo will build a binary. Run it with ~cargo run --bin something~.
+Or if the binary has multiple source files in a create, have the files ~src/bin/something/{main.rs, part1.rs, part2.rs}~.
+Cargo "discovers" the binaries to build but for more complex cases, the paths and names can be specified in Cargo.toml.
+** Tests
+Either along the implementation with a test directive or when the tests are too
+big they can be put in a separate module named `tests`. Integration tests can
+put in a ~tests~ folder at the level than the ~src~ directory.
+** Futures
+
+"If and when the future is worth polling again, it promises to let us know by invoking a waker, a callback function supplied in the
+Context." (O'Reilly Rust book)
+** Async and futures
+
+A function with signature ~async pub fn do_something() -> R~ returns an opaque
+future type that implements ~Future<Output=R>~.
+
+** Borrow checker
 ** Mutable access is exclusive access
 
 This does not work:
@@ -59,66 +144,13 @@ fn main() {
 
 because the lifetime of ~b~ ends before the lifetime of the mutable reference ~&mut a~.
 
-* Notes on the features
-** Modules
+* Cargo
 
-~use crate::something~ is a relative import using where ~crate~ refers to the
-current crate.
+~cargo expand~ show expanded macros.
 
-** Visibility of functions
+* Rustup
 
-~pub(crate)~ makes the function available within the crate but not by external
-crate.
-
-** Structs
-Private field are accessible in the module where the struct is declared (unlike
-C++/Java).
-** Constants and static
-Constants are for magic numbers, fixed strings etc. Static declares a variable
-that is set up at the start of the program and until it exits. Mutable static
-are not thread-safe (nothing enforced here with the borrow checker).
-** Declaring a library
-If there is a ~src/lib.rs~ file, Cargo will build a library, and it forms the root module of it
-** Building a binary with a lib
-If there is a ~/src/bin/something.rs~ folder, Cargo will build a binary. Run it with ~cargo run --bin something~.
-Or if the binary has multiple source files in a create, have the files ~src/bin/something/{main.rs, part1.rs, part2.rs}~.
-Cargo "discovers" the binaries to build but for more complex cases, the paths and names can be specified in Cargo.toml.
-** Tests
-Either along the implementation with a test directive or when the tests are too
-big they can be put in a separate module named `tests`. Integration tests can
-put in a ~tests~ folder at the level than the ~src~ directory.
-** Futures
-
-"If and when the future is worth polling again, it promises to let us know by invoking a waker, a callback function supplied in the
-Context." (O'Reilly Rust book)
-** Pin
-Pin prevents moving of types that do not have the Unpin trait. Used in async.
-Moves here mean in the sense of doing a = b (without Copy trait): this lead to
-elements in b being moved to new location b which is problematic for
-self-referential structs, like the ones that the async keyword (macro?)
-generates, thus the concept of pinning.
-
-"Pin prevents data getting moved the same way that reference prevent aliasing:
-by restricting what you can do with it. In particular functions that can move a
-T require either the T itself or &mut T (for example Vec::push or mem::swap).
-Wrapping a pointer with Pin prevents you from performing these kinds of
-operations, instead restricting you to ones that can take a Pin<Box<T>> or
-Pin<&mut T>" [[https://www.reddit.com/r/rust/comments/tcgmjr/comment/i0d9x6x/][source]]
-
-Implementation of ~get_mut~ in ~Pin~ module:
-#+BEGIN_SRC rust
-    pub const fn get_mut(self) -> &'a mut T
-    where
-        T: Unpin,
-    {
-        self.pointer
-    }
-#+END_SRC
-
-** Async and futures
-
-A function with signature ~async pub fn do_something() -> R~ returns an opaque
-future type that implements ~Future<Output=R>~.
+~rustup override set nightly~ overrides for the current project.
 
 * Resources to learn
 ** Video on Async programming

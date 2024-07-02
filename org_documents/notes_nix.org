@@ -35,12 +35,14 @@ https://status.nixos.org/
 
 https://nixpk.gs/pr-tracker.html
 
-** GC problems
+** Garbage-collection problems
 
+This removes outdated entries in the bootloader:
 #+BEGIN_SRC sh
   sudo /run/current-system/bin/switch-to-configuration boot
 #+END_SRC
 
+This removes gcroots which may not have been garbage-collected
 #+BEGIN_SRC sh
     rm /nix/var/nix/gcroots/auto/*
 #+END_SRC
@@ -211,6 +213,14 @@ Alternative: starts with `nix repl '<nixpkgs>'`
 ** Example of a reproducible module for a website
 
 https://git.sealight.xyz/aynish/basant/src/branch/main/flake.nix
+
+** Problem with invalid NAR when using cachix
+
+Try removing the cache:
+
+#+BEGIN_SRC sh
+  rm -rf ~/.cache/nix
+#+END_SRC
 
 * Resources
 

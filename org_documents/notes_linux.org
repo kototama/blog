@@ -16,7 +16,7 @@ Start with:
 
 then decrease the 1500 value until the packet is transmitted.
 
-* Tips
+* Firefox
 
 ** Increase scrollbar size in Firefox
 
@@ -34,6 +34,15 @@ widget.non-native-theme.scrollbar.style 4
 
 #+end_src
 
+** Disable sponsoring in Firefox
+
+Set
+
+- ~browser.newtabpage.activity-stream.showSponsored~
+- ~browser.newtabpage.activity-stream.showSponsoredTopSites~
+
+to ~false~ in ~about:config~.
+
 * Fish shell
 
 Test fish shell without local customization:
@@ -45,3 +54,16 @@ sh -c 'env HOME=$(mktemp -d) XDG_CONFIG_HOME= fish'
 #+end_src
 
 [[https://web.archive.org/web/20230928181116/https://old.reddit.com/r/firefox/comments/ujo1xy/how_to_increase_firefox_100_scrollbar_width/][Source]]
+* Docker
+
+Free some space:
+
+#+begin_src shell
+docker system  prune
+#+end_src
+
+Remove volumes when stopping ~docker-compose~:
+
+#+begin_src shell
+docker-compose down -v --remove-orphans
+#+end_src

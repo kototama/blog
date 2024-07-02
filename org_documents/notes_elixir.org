@@ -23,7 +23,7 @@
 
 ** Tracing a module (without a process):
 
-~:recon_trace.calls({:Module, :_, :_}, 20, [])~
+~:recon_trace.calls({:Module, :_, :return_trace}, 20, [])~
 
 ** Tracing a module for a process:
 
