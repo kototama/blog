@@ -1,0 +1,40 @@
+#+TITLE: Notes on Asynchronous Programming
+#+CATEGORY: note
+#+TAGS: async
+
+* Fiber / green-thread / stackfull coroutines
+
+Like in Erlang and Go.
+
+** Advantages
+
+Fast context switching. The conceptual model is easy for the user (the
+programmer). The reduced stack sized of a fiber, in comparison to OS stack for
+OS threads, allow to have million of fibers.
+
+** Disadvantages
+
+Still need context switching. Needs a runtime and its implementation is not easy
+(supporting growing stack and different architectures) 
+
+* Stackless coroutines
+
+Like in Rust. Generators offer similar mechanism because they also need to
+provide pause and resume operations.
+
+* Event queues
+
+** Readiness-based event queues
+
+Informs when an action can be performed. Epoll (Linux), kqueue (BSD, MacOS).
+
+** Completion-based event queues
+
+Informs when an action has been completed. io_uring (Linux), IOCP (Windows). A
+buffer is passed to the kernel. Must not be modified in userland until the
+operation has been completed.
+
+* References
+
+- Asynchronous programming in Rust, Carl Fredrik Samson, Packt, 2024
+- https://boats.gitlab.io/blog/post/io-uring/
