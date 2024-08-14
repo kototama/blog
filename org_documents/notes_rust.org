@@ -58,6 +58,8 @@ match(someData) {
 ~use crate::something~ is a relative import using where ~crate~ refers to the
 current crate.
 
+[[https://doc.rust-lang.org/book/ch07-02-defining-modules-to-control-scope-and-privacy.html][Declaring modules]]
+
 ** Visibility of functions
 
 ~pub(crate)~ makes the function available within the crate but not by external

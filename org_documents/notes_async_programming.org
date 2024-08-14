@@ -15,12 +15,22 @@ OS threads, allow to have million of fibers.
 ** Disadvantages
 
 Still need context switching. Needs a runtime and its implementation is not easy
-(supporting growing stack and different architectures) 
+(supporting growing stack and different architectures)
 
 * Stackless coroutines
 
-Like in Rust. Generators offer similar mechanism because they also need to
-provide pause and resume operations.
+Like in Rust. Generators offer similar mechanism because they also need to provide pause and resume
+operations. The compiler rewrites the user code and transforms into a state machine.
+
+** Advantages
+
+- Can support different runtimes (for embedded and server/desktop for example).
+- The code looks similar to synchronous code
+
+** Disadvantages
+
+- Colours everything it touches (async functions for example).
+- Beyond the similar-looking syntax, the runtime behaviour is very different.
 
 * Event queues
 

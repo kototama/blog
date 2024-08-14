@@ -29,6 +29,10 @@ From: https://www.reddit.com/r/NixOS/comments/cn6nt4/how_is_overrideattrs_differ
 
 * Tips
 
+** List Flake registry
+
+~nix registry list~
+
 ** Track merge requests
 
 https://status.nixos.org/

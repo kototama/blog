@@ -16,6 +16,10 @@ Start with:
 
 then decrease the 1500 value until the packet is transmitted.
 
+** Change the MTU for a VPN connection created with NetworkManager
+
+~nmcli connection modify NAME_DER_CONNECTION +vpn.data 'mtu=1390'~
+
 * Firefox
 
 ** Increase scrollbar size in Firefox
@@ -59,7 +63,7 @@ sh -c 'env HOME=$(mktemp -d) XDG_CONFIG_HOME= fish'
 Free some space:
 
 #+begin_src shell
-docker system  prune
+docker system prune -a -f --volumes
 #+end_src
 
 Remove volumes when stopping ~docker-compose~:

@@ -115,6 +115,10 @@ Then in the shell:
   kcachegrind analysis.cgrind
 #+END_SRC
 
+** Get IP and port for a :ranch reference
+
+~:ranch.get_addr(ref)~
+
 * Ecto
 ** Create a migration
 
