@@ -2,31 +2,6 @@
 #+CATEGORY: note
 #+TAGS: nix
  
-* Concepts
-** override versus overrideAttrs
-
-override overrides arguments of a function (i.e. the dependencies of a package), and overrideAttrs overrides the package definition itself.
-
-#+BEGIN_SRC nix
-{ stdenv, bar, baz }: # this part gets overriden by `override`
-stdenv.mkDerivation { # This part gets overriden by overrideAttrs
-  pname = "test";
-  version = "0.0.1";
-  buildInputs = [bar baz];
-  phases = ["installPhase"];
-  installPhase = "touch $out";
-}
-#+END_SRC
-
-So, to change the version of the package, you'd do example.overrideAttrs ~(_: {version = "0.0.2"; })~ and to replace baz with some customBaz, you'd do
-~example.override { baz = customBaz; }~
-
-From: https://www.reddit.com/r/NixOS/comments/cn6nt4/how_is_overrideattrs_different_from_override/
-
-** overridePackages and packageOverrides
-  overridePackages is deprecated in favor of overlays.
-  packagesOverride is used in the Python module.
-
 * Tips
 
 ** List Flake registry
@@ -41,20 +16,26 @@ https://nixpk.gs/pr-tracker.html
 
 ** Garbage-collection problems
 
-This removes outdated entries in the bootloader:
+Remove outdated entries in the bootloader:
 #+BEGIN_SRC sh
   sudo /run/current-system/bin/switch-to-configuration boot
 #+END_SRC
 
-This removes gcroots which may not have been garbage-collected
+Remove gcroots which may not have been garbage-collected. They come from `nix-build` when a `result` link is
+created.
 #+BEGIN_SRC sh
     rm /nix/var/nix/gcroots/auto/*
 #+END_SRC
 
+Prints all paths considered as GC roots 
+#+BEGIN_SRC sh
+  nix-store --gc --print-roots
+#+END_SRC
+
 #+begin_src nix
-nix-store --query --roots  /nix/store//0m2axb8lbpj9sqfiy4ys6pgyxmafb64b-emacs-28.2
-nix-store --gc --print-roots
-nix why-depends /run/current-system /nix/store//rwraw7nhqvc05wcc1zqrxyaickbrdhnd-ghc-9.2.4
+  nix-store --query --roots  /nix/store//0m2axb8lbpj9sqfiy4ys6pgyxmafb64b-emacs-28.2
+  nix-store --gc --print-roots
+  nix why-depends /run/current-system /nix/store//rwraw7nhqvc05wcc1zqrxyaickbrdhnd-ghc-9.2.4
 #+end_src
 
 #+begin_src nix
@@ -225,6 +206,40 @@ Try removing the cache:
 #+BEGIN_SRC sh
   rm -rf ~/.cache/nix
 #+END_SRC
+
+* Concepts
+** buildInputs, nativeBuildInputs etc.
+
+- buildInputs - Dependencies that should exist in the runtime environment.
+- propagatedBuildInputs - Dependencies that should exist in the runtime environment and also propagated to downstream runtime environments.
+- nativeBuildInputs - Dependencies that should only exist in the build environment.
+- propagatedNativeBuildInputs - Dependencies that should only exist in the build environment and also propagated to downstream build environments.
+
+[[https://gist.github.com/CMCDragonkai/45359ee894bc0c7f90d562c4841117b5][Source]]
+
+** override versus overrideAttrs
+
+override overrides arguments of a function (i.e. the dependencies of a package), and overrideAttrs overrides the package definition itself.
+
+#+BEGIN_SRC nix
+{ stdenv, bar, baz }: # this part gets overriden by `override`
+stdenv.mkDerivation { # This part gets overriden by overrideAttrs
+  pname = "test";
+  version = "0.0.1";
+  buildInputs = [bar baz];
+  phases = ["installPhase"];
+  installPhase = "touch $out";
+}
+#+END_SRC
+
+So, to change the version of the package, you'd do example.overrideAttrs ~(_: {version = "0.0.2"; })~ and to replace baz with some customBaz, you'd do
+~example.override { baz = customBaz; }~
+
+From: https://www.reddit.com/r/NixOS/comments/cn6nt4/how_is_overrideattrs_different_from_override/
+
+** overridePackages and packageOverrides
+  overridePackages is deprecated in favor of overlays.
+  packagesOverride is used in the Python module.
 
 * Resources
 
