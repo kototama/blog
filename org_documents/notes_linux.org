@@ -58,6 +58,14 @@ sh -c 'env HOME=$(mktemp -d) XDG_CONFIG_HOME= fish'
 #+end_src
 
 [[https://web.archive.org/web/20230928181116/https://old.reddit.com/r/firefox/comments/ujo1xy/how_to_increase_firefox_100_scrollbar_width/][Source]]
+* Audio/Video
+
+Cut a video / movie on the command-line:
+
+#+BEGIN_SRC sh
+ffmpeg -i video.mp4 -ss 00:00:00 -t 00:38:00 -c:v copy -c:a copy output.mp4
+#+END_SRC
+
 * Docker
 
 Free some space:
@@ -71,3 +79,6 @@ Remove volumes when stopping ~docker-compose~:
 #+begin_src shell
 docker-compose down -v --remove-orphans
 #+end_src
+* Virt-Manager / QEmu
+
+Resize qcow image with ~sudo qemu-img resize <filename>.qcow2 +5G~.

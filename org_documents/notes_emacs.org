@@ -4,6 +4,10 @@
 
 * Tips
 
+**  Great functions
+
+~M-x finder-comentary~
+
 ** Find caller of a function
 
 ~xref-find-reference~, bound to ~M-?~.

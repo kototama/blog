@@ -1,22 +1,31 @@
 #+TITLE: Notes on Nix
 #+CATEGORY: note
 #+TAGS: nix
- 
-* Tips
 
+* Tips
+** Showing the output of a flake
+
+~nix flake show [url|path:<path>]~
+
+** Debugging a flake build:
+
+~nix build . --show-trace -L -v~
+
+** Code to debug an expression
+
+ ~builtins.trace ''var: ${var}'' var~
 ** List Flake registry
 
 ~nix registry list~
 
 ** Track merge requests
-
 https://status.nixos.org/
 
 https://nixpk.gs/pr-tracker.html
 
 ** Garbage-collection problems
-
 Remove outdated entries in the bootloader:
+
 #+BEGIN_SRC sh
   sudo /run/current-system/bin/switch-to-configuration boot
 #+END_SRC
@@ -46,7 +55,7 @@ nix-store -q --referrers $(nix-instantiate '<nixpkgs>' -A python3Packages.enamlx
 
 #+BEGIN_SRC sh
 nix profile history --profile /nix/var/nix/profiles/system
-#+END_SRCC
+#+END_SRC
 
 ** Deploy to a remote machine
 
@@ -58,7 +67,7 @@ https://www.ertt.ca/nix/shell-scripts/#org9e3c61b
 
 ** Evaluate an expression
 
-nix eval  --raw --impure --expr 'with builtins; toJSON (attrNames (import ./. {}).tools)'
+~nix eval  --raw --impure --expr 'with builtins; toJSON (attrNames (import ./. {}).tools)'~
 
 ** Choose Elixir for a specific OTP version
 

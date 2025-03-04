@@ -7,7 +7,7 @@
 ** Inspecting queues
 #+begin_src elixir
   :recon.proc_count(:message_queue_len, 5)
-  :erlang:process_info(Pid,message_queue_len).
+  :erlang.process_info(Pid,message_queue_len)
   :recon.info(self(), :message_queue_len)
 #+end_src
 
@@ -24,6 +24,10 @@
 ** Tracing a module (without a process):
 
 ~:recon_trace.calls({:Module, :_, :return_trace}, 20, [])~
+
+Tracing a private function:
+
+~:recon_trace.calls({Module.A.B.C, :function_name, :_}, 20, scope: :local)~
 
 ** Tracing a module for a process:
 
@@ -123,3 +127,7 @@ Then in the shell:
 ** Create a migration
 
 ~mix ecto.gen.migration create_counter~
+
+* Live View
+
+[[https://www.youtube.com/watch?v=c2x1CrP9Szk][Why Is My LiveView Slow and What Can I Do About It]]
