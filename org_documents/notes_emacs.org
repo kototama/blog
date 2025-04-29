@@ -11,3 +11,7 @@
 ** Find caller of a function
 
 ~xref-find-reference~, bound to ~M-?~.
+
+** Show information about the point under the cursor
+
+~M-x what-cursor-position~
