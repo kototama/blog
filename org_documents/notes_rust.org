@@ -152,6 +152,8 @@ because the lifetime of ~b~ ends before the lifetime of the mutable reference ~&
 
 ~cargo expand~ show expanded macros.
 
+~cargo test -- --nocapture~ disables silencing of outputs.
+
 * Rustup
 
 ~rustup override set nightly~ overrides for the current project.
