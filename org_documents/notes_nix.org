@@ -3,6 +3,15 @@
 #+TAGS: nix
 
 * Tips
+
+** Switching back to a configuration without rebooting
+
+#+BEGIN_SRC sh
+sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
+sudo nix-env --switch-generation 12345 -p /nix/var/nix/profiles/system
+sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch
+#+END_SRC
+
 ** Showing the output of a flake
 
 ~nix flake show [url|path:<path>]~
