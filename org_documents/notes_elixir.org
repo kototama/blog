@@ -124,10 +124,73 @@ Then in the shell:
 ~:ranch.get_addr(ref)~
 
 * Ecto
+** Casting and types
+
+With the following code:
+
+#+BEGIN_SRC elixir
+defmodule User do
+  use Ecto.Schema
+
+  import Ecto.Changeset
+
+  schema "users" do
+    field(:name)
+    field(:email)
+    field(:age, :integer)
+  end
+
+  def changeset(user, params \\ %{}) do
+    user
+    |> cast(params, [:name, :email, :age])
+    |> validate_required([:name, :email])
+    |> validate_format(:email, ~r/@/)
+    |> validate_inclusion(:age, 18..100)
+  end
+end
+#+END_SRC
+
+we can see that `types` field contains the types declaration from the schema:
+
+#+BEGIN_SRC elixir
+iex> cs = User.changeset(%User{}, %{name: "J", email: "x@y"})
+#Ecto.Changeset<
+  action: nil,
+  changes: %{name: "J", email: "x@y"},
+  errors: [],
+  data: #User<>,
+  valid?: true,
+  ...
+>
+iex> cs.types
+%{id: :id, name: :string, email: :string, age: :integer}
+#+END_SRC
+
+but where is this information saved? There is an hidden `__changeset__` function:
+
+#+BEGIN_SRC elixir
+iex> User.__info__(:functions)
+[
+  __changeset__: 0,
+  __schema__: 1,
+  __schema__: 2,
+  __struct__: 0,
+  __struct__: 1,
+  changeset: 1,
+  changeset: 2
+]
+#+END_SRC
+
+that returns the types:
+
+#+BEGIN_SRC elixir
+User.__changeset__()
+%{id: :id, name: :string, email: :string, age: :integer}
+#+END_SRC
+
 ** Create a migration
 
 ~mix ecto.gen.migration create_counter~
-
 * Live View
 
 [[https://www.youtube.com/watch?v=c2x1CrP9Szk][Why Is My LiveView Slow and What Can I Do About It]]
