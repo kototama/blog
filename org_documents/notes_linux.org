@@ -20,6 +20,15 @@ then decrease the 1500 value until the packet is transmitted.
 
 ~nmcli connection modify NAME_DER_CONNECTION +vpn.data 'mtu=1390'~
 
+* Shell
+
+Setting default permissions for a directory:
+
+#+BEGIN_SRC sh
+  setfacl -d -m g::rwx <directory>
+  setfacl -d -m o::rx <directory>
+#+END_src
+
 * Firefox
 
 ** Increase scrollbar size in Firefox

@@ -4,6 +4,12 @@
 
 * Tips
 
+** Build a home-manager module defined in a flake
+
+~home-manager build --flake .#confname~
+
+where ~confname~ is defined a ~homeConfigurations.confname~ in the outputs of the flake.
+
 ** Switching back to a configuration without rebooting
 
 #+BEGIN_SRC sh
