@@ -268,3 +268,4 @@ From: https://www.reddit.com/r/NixOS/comments/cn6nt4/how_is_overrideattrs_differ
 * Resources
 
 - https://journal.platonic.systems/nix-flake-architecture-in-practice/#supporting-forall-architectures
+- https://blog.lazkani.io/posts/nixos-on-encrypted-zfs/
