@@ -1,0 +1,65 @@
+#+TITLE: Notes on Kubernetes
+#+TAGS: kubernetes
+#+CATEGORY: note
+
+* Concepts
+
+** Pods
+
+The execution environment running containers. Usually one pod runs one container but sometimes more ("sidecar" container).
+
+** Deployments
+
+Controller that manages the pod. Starts all the pods at the same time.
+Self-healing, scaling, rollouts, and rollbacks.
+
+** Services
+
+Route traffic to the selected pods
+
+** Ingress
+
+- NodePort services works on high ports number only.
+- LoadBalancer have a 1:1 mapping from LoadBalancer to a service, so one LoadBalancer is needed per service!
+
+** Service discovery
+
+- Automatic. ClusterDNS registers a new A and SRV records when a new Service is created. SRV record have IP and
+a PORT.
+- ClusterIPs are on a separate network, no route to it
+- ClusteIP service named kube-dns listen on port 53
+- [[https://en.wikipedia.org/wiki/IP_Virtual_Server][IPVS (IP Virtual Server)]] is used
+
+** Storage
+
+- Container Storage Interface (CSI) provides a common interface for storage providers
+- PersistentVolumes (PV), PersistentVolumeClaims (PVC), StorageClasses (SC)
+- topology-aware provisioning is achieved when a PV is created only upon a Pod creation instead of before
+
+** ConfigMaps
+
+- environment variables or files in a volume (or command-line arguments to the container)
+
+** StatefulSets
+
+- Persistent Pod names and DNS names, volume bindings
+- Pods created and destroyed one at a time by default (can be changed), useful for some services like distributed databases
+- Headless Service = a Service without a ClusterIP
+- An Headless Service + StatefulSet = Governing Service
+- Governing service creates DNS entries SRV and A for matching (label selector) pods
+
+** Security
+
+- authentification: client certificate or IAM solutions
+- RBAC. Deny by default.
+- Mutating and validating admission controllers: they intercept the requests
+
+** Kubernetes API
+
+- general available (GA) resources that get deprecated are valid for 12 months or 3 releases before being phased out
+- custom resources can be created with a custom controller, allowing to extend the Kubernetes API
+
+** Security Hardening
+- ~automountServiceAccountToken: false~ for pods that don't need to communicate with the API server
+- Pod Security Standards (PSS): privileged, baseline or restricted. Implemented as validating admission controllers.
+- ~kube-bench~
