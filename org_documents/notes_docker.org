@@ -1,0 +1,18 @@
+#+TITLE: Notes on Docker
+#+TAGS: docker
+#+CATEGORY: note
+
+* Basic commands
+- ~docker ps -a~ to show not only running container but past container
+- ~docker images~
+- ~docker run~ to start a completely new container, ~docker run -d~ to run in detached mode, ~--name=something~ to name it
+- ~docker start~ and ~docker stop~ (and ~docker kill~, issued automatically if ~docker stop~ fails)
+- ~docker rm~ removes a container
+- ~docker inspect <name>~
+- ~docker logs <name>~
+* Images
+- Layered
+- Defined with ~Dockerfile~ or ~Containerfile~ (podman)
+- Example of popular base images: busybox, alpine, RedHat UBI
+- Create an image from a ~Dockerfile~ with ~docker build -t imagename .~
+- Also possible to define image witk ~docker commit~ but it is mutable
