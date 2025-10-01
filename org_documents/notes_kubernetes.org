@@ -18,7 +18,7 @@ Self-healing, scaling, rollouts, and rollbacks.
 Route traffic to the selected pods
 
 ** Ingress
-
+Reverse HTTP proxy.
 - NodePort services works on high ports number only.
 - LoadBalancer have a 1:1 mapping from LoadBalancer to a service, so one LoadBalancer is needed per service!
 
@@ -37,7 +37,6 @@ a PORT.
 - topology-aware provisioning is achieved when a PV is created only upon a Pod creation instead of before
 
 ** ConfigMaps
-
 - environment variables or files in a volume (or command-line arguments to the container)
 
 ** StatefulSets
@@ -63,3 +62,23 @@ a PORT.
 - ~automountServiceAccountToken: false~ for pods that don't need to communicate with the API server
 - Pod Security Standards (PSS): privileged, baseline or restricted. Implemented as validating admission controllers.
 - ~kube-bench~
+* Commands
+- ~kubectl api-resources~
+* Components
+Control plane:
+- kube-apiserver (~kubectl~ command makes request to it)
+- etcd
+- kube-scheduler: schedule pods at specific locations
+- kube-controller-manager: core processes
+Worker nodes:
+- container runtimes
+- kubelet  
+* Solutions
+** For on-premises
+Google Anthos, Rancher, RedHat OpenShift, Canonical Kubernetes
+** Locally
+Minikube, K3s, OpenShift Local
+* NixOS and Minikube
+
+Starting ~minikube start~ with default docker fails but using podman ~virtualisation.podman.enable = true;~
+with ~virtualisation.podman.enable = true;~ works.
