@@ -1,0 +1,202 @@
+#+TITLE: Notes on Actix
+#+CATEGORY: note
+#+TAGS: rust actix
+
+Actix is an actor-like framework for Rust. It is also the basis for the
+actix-web web framework. It relies on Tokio.
+
+* Structure of the code
+
+** Context struct
+
+Each actor has a ~Context~ used at runtime. It is a struct containing a
+~mailbox~ and a ~ContextParts~. A ~ContextParts~ is
+
+#+BEGIN_SRC rust
+pub struct ContextParts<A>
+where
+    A: Actor,
+    A::Context: AsyncContext<A>,
+{
+    addr: AddressSenderProducer<A>,
+    flags: ContextFlags,
+    wait: SmallVec<[ActorWaitItem<A>; 2]>,
+    items: SmallVec<[Item<A>; 3]>,
+    handles: SmallVec<[SpawnHandle; 2]>,
+}
+#+END_SRC
+
+~AddressSenderProducer~ is used for the channel and contains field such as ~buffer~, ~state~, ~message_queue~,
+~parked_queue~ etc.
+
+~ContextFlags~ values: ~STARTED~, ~RUNNING~, ~STOPPING~, ~STOPPED~, ~MB_CAP_CHANGED~.
+
+An ~ActorWaitItem~ is a struct containg a ~Pin<Box<dyn ActorFuture ...>>~
+
+~Item~ is defined as ~type Item<A> = (SpawnHandle, Pin<Box<dyn ActorFuture<A,
+Output = ()>>>);~. Store the running futures for the actor.
+
+a ~SpawnHandle~ is a handle to a spawned ~Future~ and can be used to cancel it.
+It is defined as ~pub struct SpawnHandle(usize)~. ~handles[1]~ is the current
+running handle. ~handles[0]~ is the highest handle during the execution?
+~handles[2]~ and nexts are handles to be cancelled.
+
+** Context impl
+
+The ~run(self, act: A) -> Addr<A>~ method transforms the actor into a future (a ~ContextFut~)
+with ~into_future~ and spawns it.
+
+#+BEGIN_SRC rust
+    pub fn into_future(mut self, act: A) -> ContextFut<A, Self> {
+        let mb = self.mb.take().unwrap();
+        ContextFut::new(self, act, mb)
+    }
+#+END_SRC
+
+** ContextFut struct
+
+#+BEGIN_SRC rust
+pub struct ContextFut<A, C>
+where
+    C: AsyncContextParts<A> + Unpin,
+    A: Actor<Context = C>,
+{
+    ctx: C,
+    act: A,
+    mailbox: Mailbox<A>,
+    wait: SmallVec<[ActorWaitItem<A>; 2]>,
+    items: SmallVec<[Item<A>; 3]>,
+}
+#+END_SRC
+
+This is used to spawn a context (into an actor) by ~Context::run~ or ~Context::into_future~.
+
+** ActorFuture trait
+
+#+BEGIN_SRC rust
+pub trait ActorFuture<A: Actor> {
+    /// The type of value that this future will resolved with if it is
+    /// successful.
+    type Output;
+
+    fn poll(
+        self: Pin<&mut Self>,
+        srv: &mut A,
+        ctx: &mut A::Context,
+        task: &mut Context<'_>,
+    ) -> Poll<Self::Output>;
+}
+#+END_SRC
+
+Defines a ~poll~ method, similarly to a ~Future~ but with different arguments.
+
+** ResponseActFuture
+
+Messages can be processed synchronously or asynchronously. For the latter we use
+
+#+BEGIN_SRC rust
+type Result = ResponseActFuture<...>
+#+END_SRC rust
+
+for the `Result` type.
+
+** ActorContext trait
+
+Contains ~stop~, ~terminate~ and ~state~.
+
+** Arbiter
+
+Contains the event loop.
+
+#+BEGIN_SRC rust
+pub struct Arbiter {
+    tx: mpsc::UnboundedSender<ArbiterCommand>,
+    thread_handle: thread::JoinHandle<()>,
+}
+
+pub struct ArbiterHandle {
+    tx: mpsc::UnboundedSender<ArbiterCommand>,
+}
+
+struct ArbiterRunner {
+    rx: mpsc::UnboundedReceiver<ArbiterCommand>,
+}
+
+pub(crate) enum ArbiterCommand {
+    Stop,
+    Execute(Pin<Box<dyn Future<Output = ()> + Send>>),
+}
+#+END_SRC
+
+It uses ~mpsc~ (multi-producers, single-consumer) queue from Tokio. The commands
+from ~ArbiterHandle~ are sent to ~ArbiterRunner~.
+
+** SyncArbiter
+
+Must be used for CPU-heavy computations to avoid blocking the event loop.
+
+** IO module
+
+#+begin_src rust
+/// A wrapper for `AsyncWrite` types.
+pub struct Writer<T: AsyncWrite, E: From<io::Error>> {
+    inner: UnsafeWriter<T, E>,
+}
+#+end_src
+
+~UnsafeWriter~ wraps tokio ~AsyncWrite~.
+
+#+begin_src rust
+struct UnsafeWriter<T: AsyncWrite, E: From<io::Error>>(Rc<RefCell<InnerWriter<E>>>, Rc<RefCell<T>>);
+
+struct InnerWriter<E: From<io::Error>> {
+    flags: Flags,
+    buffer: BytesMut,
+    error: Option<E>,
+    low: usize,
+    high: usize,
+    handle: SpawnHandle,
+    task: Option<task::Waker>,
+}
+
+struct WriterFut<T, E>
+where
+    T: AsyncWrite + Unpin,
+    E: From<io::Error>,
+{
+    inner: UnsafeWriter<T, E>,
+}
+#+end_src
+
+~Writer~ spawns a ~WriterFut~ when started:
+
+#+begin_src rust
+    pub fn new<A, C>(io: T, ctx: &mut C) -> Self
+    where
+        A: Actor<Context = C> + WriteHandler<E>,
+        C: AsyncContext<A>,
+        T: Unpin + 'static,
+    {
+        let inner = UnsafeWriter(
+            Rc::new(RefCell::new(InnerWriter {
+                flags: Flags::empty(),
+                buffer: BytesMut::new(),
+                error: None,
+                low: LOW_WATERMARK,
+                high: HIGH_WATERMARK,
+                handle: SpawnHandle::default(),
+                task: None,
+            })),
+            Rc::new(RefCell::new(io)),
+        );
+        let h = ctx.spawn(WriterFut {
+            inner: inner.clone(),
+        });
+
+        let writer = Self { inner };
+        writer.inner.0.borrow_mut().handle = h;
+        writer
+    }
+#+end_src
+
+~WriterFut~ uses the instance of type ~AsyncWrite~ in its ~ActorFuture::poll~ implementation.
