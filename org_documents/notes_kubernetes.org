@@ -5,9 +5,19 @@
 * Concepts
 
 ** Pods
+The execution environment running containers. Usually one pod runs one container but sometimes more ("sidecar" container, for example for logging).
+It's the minimal entity managed by Kubernetes. Pod have properties such as ~nodeSelector~, ~priority~, ~restartPolicy~ etc.
+~restartPolicy=always~ does NOT restart failed or stopped pod, this is the job of Deployment.
+** Initcontainer and Sidecar container
+sidecar container is an initContainer with ~restartPolicy~ set to ~Always~
+** Jobs and cronjob
+A job is a pod with ~restartPolicy=never~. Backup, batch processing etc. ~ttlSecondsAfterFinished~ to clean
+up. ~completion~ and ~parallelism~ parameters. Ex: ~kubectl create job onejob --image=busybox -- date~
 
-The execution environment running containers. Usually one pod runs one container but sometimes more ("sidecar" container).
-
+CronJob schedule uses crontab syntax.
+- Create with ~kubectl create cronjob myjob --image=busybox --schedule="*/1 * * * *" -- date~
+- Test with ~kubectl create job myjob --from=cronjob/mycronjob~ will execute the job
+- Clean with ~kubectl delete cronjobs.batch jobname~
 ** Deployments
 
 Controller that manages the pod. Starts all the pods at the same time.
@@ -64,6 +74,18 @@ a PORT.
 - ~kube-bench~
 * Commands
 - ~kubectl api-resources~
+- ~kubectl explain pod~, ~kubectl explain pod.specs~, ~kubectl explain pod.specs.container~ etc. 
+- ~kubectl describe pod podname~
+- ~kubectl create -f resource.yaml~ (fails if already exists), ~kubectl apply -f resource.yaml~  
+- ~kubectl delete -f resource.yaml~, ~kubectl replace -f resource.yaml~
+- ~--dry-run=client -o yaml > file.yaml~ as argument to ~kubectl run~ or ~kubectl create~ to generate a YAML file
+- ~kubectl get ... -A~ to see resources on all namespaces
+- ~kubectl get pods -o wide~  
+- ~kubectl get pods podname -o yaml~  
+- ~kubectl logs <podname>~
+- ~kubectl exec -it podname sh~
+- ~kubectl port-forward podname 8080:80~
+
 * Components
 Control plane:
 - kube-apiserver (~kubectl~ command makes request to it)
@@ -78,7 +100,3 @@ Worker nodes:
 Google Anthos, Rancher, RedHat OpenShift, Canonical Kubernetes
 ** Locally
 Minikube, K3s, OpenShift Local
-* NixOS and Minikube
-
-Starting ~minikube start~ with default docker fails but using podman ~virtualisation.podman.enable = true;~
-with ~virtualisation.podman.enable = true;~ works.
