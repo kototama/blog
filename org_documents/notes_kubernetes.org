@@ -23,9 +23,69 @@ CronJob schedule uses crontab syntax.
 Controller that manages the pod. Starts all the pods at the same time.
 Self-healing, scaling, rollouts, and rollbacks.
 
-** Services
+- StatefulSet for stateful application, DaemonSet to run one application on each cluster node (unless node is "tainted"), Autoscaling.
+- ReplicaSet used to scale Application.
+- ~updateStrategy~ to deploy without downtime
 
-Route traffic to the selected pods
+*** Labels and selectors
+- key-value commonly used in Kubernetes
+- ~kubectl create deploy~ automatically get the label ~app=deploymentname~
+- Labels connect different objects: deployments to pods, services to pod
+- A ~selector~ is used to specify which label to track. ~--selector~~ on the CLI
+- ~kubectl label~ to set labels  
+- ~kubectl label ... <label>-~ with ~-~ at the end to remove a label
+- ~kubectl create deploy notes --image=nginx --dry-run=client -o yaml~
+- ~kubectl get deploy notes -o yaml~: annotations store the last applied configuration  
+- ~kubectl annotate deploy <name> newnote="blabla"~
+
+Example:
+#+BEGIN_SRC yaml
+  selector:
+    matchLabels:
+      app: webapp
+#+END_SRC
+*** Scaling manually
+- ~kubectl deploy .. --replicas=3~
+- ~kubectl scale deploy scaledapp --replicas=2~
+    
+*** Application updates
+- ~strategy.type.rollingUpdate~: different version of the application might runned at the same time
+- ~strategy.type.recreate~: don't support offering multiple versions simultaneously, so all applications are first down
+- ~maxSurge~: number or percentage of app that can be added above the regular number
+- ~maxUnavailable~: how many can be temporarly unavailable 
+
+*** How deployment works
+A new ReplicaSet is created. Old replica kept in case of rollback but with number of Pods set to 0.
+
+
+*** StatefulSet
+Maintains the identity of Pods, even if restarted. Use when one of the following is required:
+- stable, unique network identifiers
+- stable, persisten storage
+- ordered, graceful deployment and scaling
+- ordered and automated rolling update
+
+- Persistent Pod names and DNS names, volume bindings
+- Pods created and destroyed one at a time by default (can be changed), useful for some services like distributed databases
+- Headless Service = a Service without a ClusterIP
+- An Headless Service + StatefulSet = Governing Service
+- Governing service creates DNS entries SRV and A for matching (label selector) pods
+
+
+- Storage must use PersistentVolume and use ~volumeClaimTemplate~ which generates a PVC.
+- Deleting a StatefulSet does not delete the volumes. Requires a headless Service.
+- Pods are created one by one
+
+*** DaemonSet
+Starts one Pod instance on eahc Node in the cluster. Useful for log agents for example.
+
+*** Autoscalling
+HorizontalPodAutoscaler observes usage statistics. Metrics Server.
+Example: ~kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10~
+
+** Services and Networking
+
+Route traffic to the selected pods.
 
 ** Ingress
 Reverse HTTP proxy.
@@ -46,16 +106,25 @@ a PORT.
 - PersistentVolumes (PV), PersistentVolumeClaims (PVC), StorageClasses (SC)
 - topology-aware provisioning is achieved when a PV is created only upon a Pod creation instead of before
 
+*** Pod volumes
+- Pod volumes okay for environment where a specific type of storage is needed (such as NFS), otherwise PersistentVolumes are used
+- ~pod.spec.containers.volumeMounts~
+- Common types are ~emptyDir~: ephemeral and host bound, ~hostPath~ persistent and host bound, ~PersistentVolumeClaim~, ~fc~ (fiber channel), ~isci~ etc.
+*** Persistent Volumes
+- a specific API resource that defines a storage
+- pod connects to a PV by using a PVC: allow decoupling
+- PV often created automatically with ~StorageClass~ resource
+
+*** StorageClassName
+  - Used to group different type of storage: preprod, prod, slow, etc.
+*** StorageClass
+- Works with a storage provisioner to create PV. Storage provisioner are not part of vanilla Kubernetes, provided by the ecosystem
+*** PersistentVolumeClaims
+Binds a storage without caring about its exact type. A PVC uses a ~storageClassName~ attribute, ~accessModes~ and ~resources~ (the size).
+The bound storage is exclusive so requesting 1G and being bound to a 10G storage means the 10G storage is all used.
+
 ** ConfigMaps
 - environment variables or files in a volume (or command-line arguments to the container)
-
-** StatefulSets
-
-- Persistent Pod names and DNS names, volume bindings
-- Pods created and destroyed one at a time by default (can be changed), useful for some services like distributed databases
-- Headless Service = a Service without a ClusterIP
-- An Headless Service + StatefulSet = Governing Service
-- Governing service creates DNS entries SRV and A for matching (label selector) pods
 
 ** Security
 
@@ -72,9 +141,14 @@ a PORT.
 - ~automountServiceAccountToken: false~ for pods that don't need to communicate with the API server
 - Pod Security Standards (PSS): privileged, baseline or restricted. Implemented as validating admission controllers.
 - ~kube-bench~
+
+** Helm and Kustomize
+
+~kubectl apply -k ./~. Can be used to create dev, staging, prod environments.
+
 * Commands
 - ~kubectl api-resources~
-- ~kubectl explain pod~, ~kubectl explain pod.specs~, ~kubectl explain pod.specs.container~ etc. 
+- ~kubectl explain pod~, ~kubectl explain pod.specs~, ~kubectl explain pod.specs.container~, ~kubectl explain persistentvolume.spec~ etc. 
 - ~kubectl describe pod podname~
 - ~kubectl create -f resource.yaml~ (fails if already exists), ~kubectl apply -f resource.yaml~  
 - ~kubectl delete -f resource.yaml~, ~kubectl replace -f resource.yaml~
@@ -85,6 +159,15 @@ a PORT.
 - ~kubectl logs <podname>~
 - ~kubectl exec -it podname sh~
 - ~kubectl port-forward podname 8080:80~
+- ~crictl ps~
+- ~kubectl run dummy --image=busybox --dry-run=client -o yaml -- sleep infinity~
+- ~kubectl cp <file> <pod>:<path>~
+- ~kubectl create deploy webapp --image=nginx --replicas=3~  
+- ~kubectl get all --selector app=webapp~
+- ~kubectl get all --show-labels~
+- ~kubectl describe deployments.apps <label>~
+- ~kubectl rollout history deployment <name> --revision=2~
+- ~kubectl rollout undo deployment <name> --to-revision=<number>~
 
 * Components
 Control plane:
