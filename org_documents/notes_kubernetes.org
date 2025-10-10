@@ -85,12 +85,64 @@ Example: ~kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max
 
 ** Services and Networking
 
-Route traffic to the selected pods.
+Networking in kubernetes: external net (the physical net), clusternet and podnet. Services route traffic to
+the selected pods.
 
-** Ingress
-Reverse HTTP proxy.
-- NodePort services works on high ports number only.
-- LoadBalancer have a 1:1 mapping from LoadBalancer to a service, so one LoadBalancer is needed per service!
+- ~ClusterIP~ service type, only internally accessible.
+- ~NodePort~ creates an externally accessible port (high port only).
+- ~LoadBalancer~
+- ~ExternalName~ works on DNS name, useful for migration
+- ~Headless~ direct communication between Pods, for StatefulSet
+
+
+Services are round-robing traffic. Set of pods targeted by a Service depends of the ~selector~.
+~kube-controller-manager~ scan for Pods that matches the selector. So one ~Service~ can provide access to Pods
+in multiple ~Deployments~.
+
+Commands: ~kubectl expose deployment NAME --port=80~ and ~kubectl create service~.
+
+- ~targetPort~ the port on the application
+- ~port~ the port on which the Service is accessible
+- ~nodePort~ the port exposed externally while using the ~NodePort~ Service type
+
+Ingress and GatewayAPI are only for HTTP-based services.
+
+Exposed Services automatically registers to ~servicename.namespace.svc.clustername~.
+
+Pods can always communicate, even if they are in other Namespaces. Limit traffic can be done with
+NetworkPolicies.
+
+NetworkPolicies have three different identifiers:
+- podSelector
+- namespaceSelector
+- ipBlock
+
+Gateway API provides routting and traffic management policies not addressed by Ingress: TCP, UDP, gRPC,
+traffic splitting, mirroring, websockets.
+
+Istio is a service mesh and facilitates managing complex relations between applications: traffic management,
+security, observability for service-to-service communication
+
+** Ingress and Gateway API
+Reverse HTTP proxy. Gateway API is the successor of Ingress. Do not use both on the same machine.
+- The load balancer is implemented by the Ingress controller
+- Ingress uses Services to connect Pods that are used a service endpoint
+- LoadBalancer have a 1:1 mapping from LoadBalancer to a service, so one LoadBalancer is needed per service
+
+Ingress exposes HTTP and HTTPS resources. Traffic is controlled with rules.
+- give Services externally-reachable
+- load balance traffic
+- terminate SSL/TLS
+
+Common Ingress controllers: nginx, haproxy, traefik, kong, contour.
+
+Ingress rules: ~pathType~ Exact or Prefix. Load balance on a single Service, as simple fanout or named-based
+virtual hosting.
+
+Gateway API use API resources provided by CRD (CustomResourceDefinitions). GatewayClass represents the Gateway
+controller. The controller must be installed, like for Ingress. Before installing it, it's necessary to
+install the Custom Resource.
+
 
 ** Service discovery
 
@@ -107,9 +159,11 @@ a PORT.
 - topology-aware provisioning is achieved when a PV is created only upon a Pod creation instead of before
 
 *** Pod volumes
-- Pod volumes okay for environment where a specific type of storage is needed (such as NFS), otherwise PersistentVolumes are used
+- Pod volumes okay for environment where a specific type of storage is needed (such as NFS), otherwise
+  PersistentVolumes are used
 - ~pod.spec.containers.volumeMounts~
-- Common types are ~emptyDir~: ephemeral and host bound, ~hostPath~ persistent and host bound, ~PersistentVolumeClaim~, ~fc~ (fiber channel), ~isci~ etc.
+- Common types are ~emptyDir~: ephemeral and host bound, ~hostPath~ persistent and host bound (security
+  risks), ~PersistentVolumeClaim~, ~fc~ (fiber channel), ~isci~ etc.
 *** Persistent Volumes
 - a specific API resource that defines a storage
 - pod connects to a PV by using a PVC: allow decoupling
@@ -118,13 +172,24 @@ a PORT.
 *** StorageClassName
   - Used to group different type of storage: preprod, prod, slow, etc.
 *** StorageClass
-- Works with a storage provisioner to create PV. Storage provisioner are not part of vanilla Kubernetes, provided by the ecosystem
+- Works with a storage provisioner to create PV. Storage provisioner are not part of vanilla Kubernetes,
+  provided by the ecosystem
 *** PersistentVolumeClaims
-Binds a storage without caring about its exact type. A PVC uses a ~storageClassName~ attribute, ~accessModes~ and ~resources~ (the size).
-The bound storage is exclusive so requesting 1G and being bound to a 10G storage means the 10G storage is all used.
+Binds a storage without caring about its exact type. A PVC uses a ~storageClassName~ attribute, ~accessModes~
+and ~resources~ (the size). The bound storage is exclusive so requesting 1G and being bound to a 10G storage
+means the 10G storage is all used.
 
-** ConfigMaps
+** ConfigMaps and secrets
+ConfigMap is an API resource to store site specific information
 - environment variables or files in a volume (or command-line arguments to the container)
+- Up to 1M
+- For configuration file, a Pod volume is necessary
+
+Secret are base64 encoded. Types: generic (password), tls, docker-registry (for the credentials). The value
+does not have to be stored in the application manifest file, so more secure but not encrypted!
+~volumes.secret.defaultMode: 0400~.
+
+For ~docker-registry~, use ~impagePullSecrets~ key.
 
 ** Security
 
@@ -146,29 +211,53 @@ The bound storage is exclusive so requesting 1G and being bound to a 10G storage
 
 ~kubectl apply -k ./~. Can be used to create dev, staging, prod environments.
 
+** Blue/Green and canary deployment
+Blue-green: with either with Ingress or Deployments. For Ingress, change the service name. For Deployment,
+expose only one of them, delete the other. Also possible with third-party solution.
+
+For canary deployment, just a new version is exposed to a limited number of users. Can use
+~nginx.ingress.kubernetes.io/canary~ and ~nginx.ingress.kubernetes.io/canary-weight~. Or with Services and set
+a different number of replicas for the new service while testing.
+
 * Commands
 - ~kubectl api-resources~
-- ~kubectl explain pod~, ~kubectl explain pod.specs~, ~kubectl explain pod.specs.container~, ~kubectl explain persistentvolume.spec~ etc. 
+- ~kubectl explain pod~, ~kubectl explain pod.specs~, ~kubectl explain pod.specs.container~, ~kubectl explain
+  persistentvolume.spec~ etc.
 - ~kubectl describe pod podname~
-- ~kubectl create -f resource.yaml~ (fails if already exists), ~kubectl apply -f resource.yaml~  
+- ~kubectl create -f resource.yaml~ (fails if already exists), ~kubectl apply -f resource.yaml~
 - ~kubectl delete -f resource.yaml~, ~kubectl replace -f resource.yaml~
-- ~--dry-run=client -o yaml > file.yaml~ as argument to ~kubectl run~ or ~kubectl create~ to generate a YAML file
+- ~--dry-run=client -o yaml > file.yaml~ as argument to ~kubectl run~ or ~kubectl create~ to generate a YAML
+  file
 - ~kubectl get ... -A~ to see resources on all namespaces
-- ~kubectl get pods -o wide~  
-- ~kubectl get pods podname -o yaml~  
+- ~kubectl get pods -o wide~, ~kubectl get pods -o wide -A~
+- ~kubectl get pods podname -o yaml~
 - ~kubectl logs <podname>~
 - ~kubectl exec -it podname sh~
 - ~kubectl port-forward podname 8080:80~
 - ~crictl ps~
 - ~kubectl run dummy --image=busybox --dry-run=client -o yaml -- sleep infinity~
 - ~kubectl cp <file> <pod>:<path>~
-- ~kubectl create deploy webapp --image=nginx --replicas=3~  
+- ~kubectl create deploy webapp --image=nginx --replicas=3~
 - ~kubectl get all --selector app=webapp~
 - ~kubectl get all --show-labels~
 - ~kubectl describe deployments.apps <label>~
 - ~kubectl rollout history deployment <name> --revision=2~
 - ~kubectl rollout undo deployment <name> --to-revision=<number>~
-
+- ~kubectl get svc~
+- ~kubectl get endpoints~
+- ~kubectl lable pod NAME label=value~
+- ~kubectl describe networkpolicy NAME~
+- ~kubectl create ingress -h~
+- ~kubectl describe in~
+- ~kubectl get netpol -A~
+- ~kubectl get ns~
+- ~minikube addons enable ingress~
+- ~kubectl create cm --from-literal key=value~
+- ~kubectl create cm --from-env-file=filepath~
+- ~kubectl set env~
+- ~kubectl set env --from configmap/mycm deploy/mydeploy~, eventually with ~--prefix~
+- ~kubectl expose deployment NAME --port=80 --type=NodePort~
+- ~kubectl expose deployment NAME --port=80 --selector key=value --type=NodePort~
 * Components
 Control plane:
 - kube-apiserver (~kubectl~ command makes request to it)
@@ -177,7 +266,7 @@ Control plane:
 - kube-controller-manager: core processes
 Worker nodes:
 - container runtimes
-- kubelet  
+- kubelet
 * Solutions
 ** For on-premises
 Google Anthos, Rancher, RedHat OpenShift, Canonical Kubernetes
