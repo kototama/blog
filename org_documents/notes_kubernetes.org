@@ -143,7 +143,6 @@ Gateway API use API resources provided by CRD (CustomResourceDefinitions). Gatew
 controller. The controller must be installed, like for Ingress. Before installing it, it's necessary to
 install the Custom Resource.
 
-
 ** Service discovery
 
 - Automatic. ClusterDNS registers a new A and SRV records when a new Service is created. SRV record have IP and
@@ -191,21 +190,57 @@ does not have to be stored in the application manifest file, so more secure but 
 
 For ~docker-registry~, use ~impagePullSecrets~ key.
 
+** Kubernetes API
+
+- general available (GA) resources that get deprecated are valid for 12 months or 3 releases before being
+  phased out
+- custom resources can be created with a custom controller, allowing to extend the Kubernetes API
+- ~kubectl api-resources~, ~kubectl api-versions~
+- ~kube-apiserver~ provides access to the API, the main client is ~kubectl~ (configured with ~~/.kube/config~)
+- ~kube-proxy~ for secure communication, allow for example to url ~curl~ without setting up encryption
+- A CustomResourceDefinition allows to add an API resource. crds are integrated with the Kubernetes API. No
+  programming required to define it.
+- Custom controller: watches for changes and automate tasks
+- API aggregation: higher level of customization but needs to be programmed
+- Operators are custom applications and based on Controllers, they are application-specific controllers
+- Operators can be added by programming them or operatorhub.io. Ex: Prometheus, Tigera, Jaeger etc.
 ** Security
 
 - authentification: client certificate or IAM solutions
 - RBAC. Deny by default.
 - Mutating and validating admission controllers: they intercept the requests
-
-** Kubernetes API
-
-- general available (GA) resources that get deprecated are valid for 12 months or 3 releases before being phased out
-- custom resources can be created with a custom controller, allowing to extend the Kubernetes API
-
+- ~kubectl auth can-i get pods --as bob@example.com~
+- a custom ServiceAccount with RoleBinding can connect a Pod to a specific Role
+- ~kubectl get sa~ (service account)
+- RBAC: Role, ServiceAccount, RoleBinding. Role and RoleBinding: Namespace scope. ClusterRoles and
+  ClusteRoleBinding have cluster scope
+- ~kubectl create role NAME ...~, ~kubectl create sa NAME~, ~kubectm create rolebinding NAME ...~, ~kubectl
+  set serviceaccount deployment DEPLOY NAME~
+- ~kubectl describe clusterrolebindings.rbac.authorization.k8s.io system:coredns~
+- ~kubectl describe clusterrole system:coredns~
+- SecurityContext allow privilege escalation or extra capabilities, runAsNotRoolt, readOnlyFileSystem,
+  runAsUser, seLinuxOptions etc.
+- ~pod.spec.containers.resources.requests~ and ~pod.spec.containers.resources.limits~, ~kubectl set resources~
+  to apply limits
 ** Security Hardening
 - ~automountServiceAccountToken: false~ for pods that don't need to communicate with the API server
 - Pod Security Standards (PSS): privileged, baseline or restricted. Implemented as validating admission controllers.
 - ~kube-bench~
+
+** Troubleshooting
+- ~kubectl describe~ on a pod and check error code
+- ~kubectl logs~, ~kubectl logs --previous~
+- ~kubectl port-forward~
+- ~kubectl get networkpolicies~
+- ~kubectl get events -o wide~
+- ~kubectl config view~
+
+** Observability
+
+- providing ~/healthz~, ~/livez~, ~/readyz~ endpoint is a common practice for applications (such as
+  ~kube-apiserver~)
+- probes: ~exec~, ~httpGet~, ~tcpSocket~
+- probes types: ~livenessProbe~, ~readinessProbe~, ~startupProbe~
 
 ** Helm and Kustomize
 
@@ -258,6 +293,10 @@ a different number of replicas for the new service while testing.
 - ~kubectl set env --from configmap/mycm deploy/mydeploy~, eventually with ~--prefix~
 - ~kubectl expose deployment NAME --port=80 --type=NodePort~
 - ~kubectl expose deployment NAME --port=80 --selector key=value --type=NodePort~
+- ~kubectl proxy --port=8001~ then use ~curl~
+- ~kubectl explain --recursive~
+- ~kubectl port-forward myweb 8080:80~ then ~curl localhost:8080~
+- ~kubectl get events -o wide~
 * Components
 Control plane:
 - kube-apiserver (~kubectl~ command makes request to it)
