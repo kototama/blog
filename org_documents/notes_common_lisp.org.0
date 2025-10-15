@@ -1,0 +1,12 @@
+#+TITLE: Notes on Common Lisp
+#+CATEGORY: note
+#+TAGS: common-lisp
+
+* Pros
+- much more flexible and powerful than many modern languages such as Python
+- best in class ability to develop a program interactively with a powerful REPL  
+
+* Cons
+- lack of libraries
+- most standard datastructures are mutable
+- nil comes everywhere, much more often than in Elixir for example which is also dynamic  
