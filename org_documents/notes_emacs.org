@@ -15,3 +15,7 @@
 ** Show information about the point under the cursor
 
 ~M-x what-cursor-position~
+
+** Always disable tabs
+
+~(setq-default indent-tabs-mode nil)~
